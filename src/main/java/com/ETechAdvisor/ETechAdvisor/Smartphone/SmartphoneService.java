@@ -35,6 +35,7 @@ public class SmartphoneService {
     private AtomicReference<Integer> maxGeekbenchResult = new AtomicReference<>(0);
     private AtomicReference<Integer> maxBatteryPower = new AtomicReference<>(0);
     private AtomicReference<Double> maxMegapix = new AtomicReference<>(0.0);
+    private AtomicReference<Double> maxPrice = new AtomicReference<>(0.0);
     @Autowired
     public SmartphoneService(SmartphoneRepository smartphoneRepository) {
         this.smartphoneRepository = smartphoneRepository;
@@ -168,9 +169,19 @@ public class SmartphoneService {
             score += Math.max(0, Math.min(price_score, 1));
             total_weight += 1;
         }
+        else{
+            double price_score = smartphone.getAvgPrice()/maxPrice.get();
+            score += Math.max(0, Math.min(price_score, 1));
+            total_weight += 1;
+        }
 
         if (storageMin != null && storageMax != null) {
             double storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
+            score += Math.max(0, Math.min(storage_score, 1));
+            total_weight += 1;
+        }
+        else{
+            double storage_score = (double) smartphone.getStorage() /maxStorage.get();
             score += Math.max(0, Math.min(storage_score, 1));
             total_weight += 1;
         }
@@ -322,6 +333,10 @@ public class SmartphoneService {
                 .mapToDouble(Smartphone::getMegapix)
                 .max().orElse(0.0);
         maxMegapix.set(maxMegapixValue);
+        double maxPriceValue = smartphones.stream()
+                .mapToDouble(Smartphone::getAvgPrice)
+                .max().orElse(0.0);
+        maxPrice.set(maxPriceValue);
     }
 
     @Override
