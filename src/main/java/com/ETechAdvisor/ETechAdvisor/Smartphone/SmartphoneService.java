@@ -3,6 +3,7 @@ package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
+import org.hibernate.sql.ast.tree.expression.Over;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -360,5 +361,31 @@ public class SmartphoneService {
                 ", maxBatteryPower=" + maxBatteryPower +
                 ", maxMegapix=" + maxMegapix +
                 '}';
+    }
+
+    public SmartphoneResponse getSmartphoneById(Integer id){
+        Smartphone smartphone = smartphoneRepository.findById(id).orElse(null);
+
+        if(smartphone == null) {
+            return null;
+        }
+        List<Overview> overviews = getOverview(smartphone);
+        SmartphoneResponse smartphoneResponse = SmartphoneResponse.builder()
+                .id(id)
+                .name(smartphone.getName())
+                .avgPrice(smartphone.getAvgPrice())
+                .score(smartphone.getScore())
+                .imageUrl(smartphone.getImageUrl())
+
+                .build();
+
+        return null;
+    }
+    private List<Overview> getOverview(Smartphone smartphone){
+        List<Overview> overviews = new ArrayList<>();
+        if(smartphone.getScreenSize() > averageScreenSize.get()){
+            overviews.add(new Overview(smartphone.getScreenSize(), averageScreenSize.get(), "cm", "Screen Size", "The size of the screen (measured diagonally)."));
+        }
+        return null;
     }
 }

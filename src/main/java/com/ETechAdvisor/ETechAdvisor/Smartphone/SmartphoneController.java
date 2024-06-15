@@ -20,7 +20,7 @@ public class SmartphoneController {
         System.out.println(smartphoneService.toString());
     }
 
-    @GetMapping("/all")
+    @GetMapping("")
     public List<SmartphoneDTO> getOffers(
             @RequestParam(required = false) Double priceMin,
             @RequestParam(required = false) Double priceMax,
@@ -40,5 +40,10 @@ public class SmartphoneController {
         return smartphoneService.getFilteredSmartphones(priceMin, priceMax, brand, displayType, storageMin,
                 storageMax, hasAudioJack, megapixMin, megapixMax, batteryPowerMin, batteryPowerMax,
                 screenSizeMin, screenSizeMax, os);
+    }
+
+    @GetMapping("/{id}")
+    public SmartphoneResponse getSmartphoneById(@PathVariable Integer id){
+        return smartphoneService.getSmartphoneById(id);
     }
 }
