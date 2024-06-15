@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,15 @@ public class SmartphoneService {
     private AtomicReference<Integer> averageBatteryPower = new AtomicReference<>(0);
     private AtomicReference<Double> averageMegapix = new AtomicReference<>(0.0);
 
+    // Maximum values
+    private AtomicReference<Double> maxScreenSize = new AtomicReference<>(0.0);
+    private AtomicReference<Double> maxProcessorSpeed = new AtomicReference<>(0.0);
+    private AtomicReference<Integer> maxRefreshRate = new AtomicReference<>(0);
+    private AtomicReference<Integer> maxRam = new AtomicReference<>(0);
+    private AtomicReference<Integer> maxStorage = new AtomicReference<>(0);
+    private AtomicReference<Integer> maxGeekbenchResult = new AtomicReference<>(0);
+    private AtomicReference<Integer> maxBatteryPower = new AtomicReference<>(0);
+    private AtomicReference<Double> maxMegapix = new AtomicReference<>(0.0);
     @Autowired
     public SmartphoneService(SmartphoneRepository smartphoneRepository) {
         this.smartphoneRepository = smartphoneRepository;
@@ -224,50 +234,94 @@ public class SmartphoneService {
     @PostConstruct
     public void init() {
         calculateAverages();
+        calculateMaxValues();
     }
 
     public void calculateAverages() {
         List<Smartphone> smartphones = smartphoneRepository.findAll();
-
+        int size = smartphones.size();
         double totalScreenSize = smartphones.stream()
                 .mapToDouble(Smartphone::getScreenSize)
                 .sum();
-        averageScreenSize.set(totalScreenSize / smartphones.size());
+        averageScreenSize.set(totalScreenSize / size);
 
         double totalProcessorSpeed = smartphones.stream()
                 .mapToDouble(Smartphone::getProcessorSpeed)
                 .sum();
-        averageProcessorSpeed.set(totalProcessorSpeed / smartphones.size());
+        averageProcessorSpeed.set(totalProcessorSpeed / size);
 
         int totalRefreshRate = smartphones.stream()
                 .mapToInt(Smartphone::getRefreshRate)
                 .sum();
-        averageRefreshRate.set(totalRefreshRate / smartphones.size());
+        averageRefreshRate.set(totalRefreshRate / size);
 
         int totalRam = smartphones.stream()
                 .mapToInt(Smartphone::getRam)
                 .sum();
-        averageRam.set( totalRam / smartphones.size());
+        averageRam.set( totalRam / size);
 
         int totalStorage = smartphones.stream()
                 .mapToInt(Smartphone::getStorage)
                 .sum();
-        averageStorage.set(totalStorage / smartphones.size());
+        averageStorage.set(totalStorage / size);
 
         int totalGeekbenchResult = smartphones.stream()
                 .mapToInt(Smartphone::getGeekbenchResult)
                 .sum();
-        averageGeekbenchResult.set(totalGeekbenchResult / smartphones.size());
+        averageGeekbenchResult.set(totalGeekbenchResult / size);
 
         int totalBatteryPower = smartphones.stream()
                 .mapToInt(Smartphone::getBatteryPower)
                 .sum();
-        averageBatteryPower.set(totalBatteryPower / smartphones.size());
+        averageBatteryPower.set(totalBatteryPower / size);
 
         double totalMegapix = smartphones.stream()
                 .mapToDouble(Smartphone::getMegapix)
                 .sum();
-        averageMegapix.set(totalMegapix / smartphones.size());
+        averageMegapix.set(totalMegapix / size);
+    }
+    public void calculateMaxValues() {
+        List<Smartphone> smartphones = smartphoneRepository.findAll();
+
+        double maxScreenSizeValue = smartphones.stream()
+                .mapToDouble(Smartphone::getScreenSize)
+                .max().orElse(0.0);
+        maxScreenSize.set(maxScreenSizeValue);
+
+        double maxProcessorSpeedValue = smartphones.stream()
+                .mapToDouble(Smartphone::getProcessorSpeed)
+                .max().orElse(0.0);
+        maxProcessorSpeed.set(maxProcessorSpeedValue);
+
+        int maxRefreshRateValue = smartphones.stream()
+                .mapToInt(Smartphone::getRefreshRate)
+                .max().orElse(0);
+        maxRefreshRate.set(maxRefreshRateValue);
+
+        int maxRamValue = smartphones.stream()
+                .mapToInt(Smartphone::getRam)
+                .max().orElse(0);
+        maxRam.set(maxRamValue);
+
+        int maxStorageValue = smartphones.stream()
+                .mapToInt(Smartphone::getStorage)
+                .max().orElse(0);
+        maxStorage.set(maxStorageValue);
+
+        int maxGeekbenchResultValue = smartphones.stream()
+                .mapToInt(Smartphone::getGeekbenchResult)
+                .max().orElse(0);
+        maxGeekbenchResult.set(maxGeekbenchResultValue);
+
+        int maxBatteryPowerValue = smartphones.stream()
+                .mapToInt(Smartphone::getBatteryPower)
+                .max().orElse(0);
+        maxBatteryPower.set(maxBatteryPowerValue);
+
+        double maxMegapixValue = smartphones.stream()
+                .mapToDouble(Smartphone::getMegapix)
+                .max().orElse(0.0);
+        maxMegapix.set(maxMegapixValue);
     }
 
     @Override
@@ -282,6 +336,14 @@ public class SmartphoneService {
                 ", averageGeekbenchResult=" + averageGeekbenchResult +
                 ", averageBatteryPower=" + averageBatteryPower +
                 ", averageMegapix=" + averageMegapix +
+                ", maxScreenSize=" + maxScreenSize +
+                ", maxProcessorSpeed=" + maxProcessorSpeed +
+                ", maxRefreshRate=" + maxRefreshRate +
+                ", maxRam=" + maxRam +
+                ", maxStorage=" + maxStorage +
+                ", maxGeekbenchResult=" + maxGeekbenchResult +
+                ", maxBatteryPower=" + maxBatteryPower +
+                ", maxMegapix=" + maxMegapix +
                 '}';
     }
 }

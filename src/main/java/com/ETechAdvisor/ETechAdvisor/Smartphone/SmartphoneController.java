@@ -17,7 +17,7 @@ public class SmartphoneController {
     public SmartphoneController(SmartphoneService smartphoneService) {
 
         this.smartphoneService = smartphoneService;
-        String string = smartphoneService.toString();
+        System.out.println(smartphoneService.toString());
     }
 
     @GetMapping("/all")
