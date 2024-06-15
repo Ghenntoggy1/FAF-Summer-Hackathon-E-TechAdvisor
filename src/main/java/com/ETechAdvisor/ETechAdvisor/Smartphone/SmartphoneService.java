@@ -447,6 +447,7 @@ public class SmartphoneService {
                         .description("Devices with stereo speakers deliver sound from independent channels on both left and right sides, creating a richer sound and a better experience.")
                         .build()
         ));
+        calculateScore(smartphone,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
 
         return SmartphoneResponse.builder()
                 .id(id)
@@ -468,8 +469,8 @@ public class SmartphoneService {
 
     private List<Price> getPrices(String name) throws IOException {
         return new ArrayList<>(Arrays.asList(
-//                PriceApi.getPrice(name, "amazon"),
-//                PriceApi.getPrice(name, "ebay"),
+                PriceApi.getPrice(name, "amazon"),
+                PriceApi.getPrice(name, "ebay"),
                 PriceApi.getPrice(name, "google_shopping")
         ));
     }
