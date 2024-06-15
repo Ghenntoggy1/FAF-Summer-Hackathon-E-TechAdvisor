@@ -510,4 +510,45 @@ public class SmartphoneService {
 
         return overviews;
     }
+    private List<Overview> getOverview2(Smartphone smartphone1, Smartphone smartphone2){
+        List<Overview> overviews = new ArrayList<>();
+        if(smartphone1.getScreenSize() > smartphone2.getScreenSize()){
+            overviews.add(new Overview(smartphone1.getScreenSize(), smartphone2.getScreenSize(), "cm", "Screen Size", "The size of the screen (measured diagonally)."));
+        }
+
+        if (smartphone.getProcessorSpeed() > averageProcessorSpeed.get()){
+            overviews.add(new Overview(smartphone.getProcessorSpeed(), averageProcessorSpeed.get(), "GHz", "Processor Speed", "The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores."));
+        }
+
+        if (smartphone.getRefreshRate() > averageRefreshRate.get()){
+            overviews.add(new Overview(smartphone.getRefreshRate(), averageRefreshRate.get(), "Hz", "Refresh Rate", "  "));
+        }
+
+        if (smartphone.getRam() > averageRam.get()){
+            overviews.add(new Overview(smartphone.getRam(), averageRam.get(), "GB", "RAM", "Random-access memory (RAM) is a form of memory used to store working data and machine code. Having more RAM is particularly useful for multitasking, allowing you to run more programs at once or have more tabs open in your browser."));
+        }
+
+        if (smartphone.getStorage() > averageStorage.get()){
+            overviews.add(new Overview(smartphone.getStorage(), averageStorage.get(), "GB", "Internal Storage Size", "The internal storage refers to the built-in storage space available in a device for system data, apps, and user-generated data. With a large amount of internal storage, you can save more files and apps on your device."));
+        }
+
+        if (smartphone.getGeekbenchResult() > averageGeekbenchResult.get()){
+            overviews.add(new Overview(smartphone.getGeekbenchResult(), averageGeekbenchResult.get(), "Points", "Geekbench Rating", "A Geekbench result is a score that measures the performance of a smartphone's processor and memory. Higher scores indicate better performance, helping users compare the capabilities of different devices."));
+        }
+
+        if (smartphone.getBatteryPower() > averageBatteryPower.get()){
+            overviews.add(new Overview(smartphone.getBatteryPower(), averageBatteryPower.get(), "mAh", "Battery Power", "Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life."));
+        }
+
+        if (smartphone.getMegapix() > averageMegapix.get()){
+            overviews.add(new Overview(smartphone.getMegapix(), averageMegapix.get(), "MP", "Megapixels", "The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image."));
+        }
+
+        return overviews;
+    }
+    public CompareResponse compareSmartphones(Integer id, Integer other) {
+        Smartphone smartphone1 = smartphoneRepository.findById(id).orElse(null);
+        Smartphone smartphone2 = smartphoneRepository.findById(other).orElse(null);
+
+    }
 }

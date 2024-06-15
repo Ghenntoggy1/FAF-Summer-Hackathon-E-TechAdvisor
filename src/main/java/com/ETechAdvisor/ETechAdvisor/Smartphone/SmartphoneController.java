@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,5 +47,13 @@ public class SmartphoneController {
     @GetMapping("/{id}")
     public SmartphoneResponse getSmartphoneById(@PathVariable Integer id) throws IOException {
         return smartphoneService.getSmartphoneById(id);
+    }
+
+    @GetMapping("/{id}/vs/{other}")
+    public CompareResponse compareSmartphones(@PathVariable Integer id,
+                                              @PathVariable Integer other){
+
+        return smartphoneService.compareSmartphones(id, other);
+
     }
 }
