@@ -67,7 +67,7 @@ public class PriceApi {
 
             if (!jobFinished) {
                 try {
-                    Thread.sleep(5000); // Wait for 5 seconds before checking status again
+                    Thread.sleep(500); // Wait for 5 seconds before checking status again
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -100,14 +100,36 @@ public class PriceApi {
             if (shop.equalsIgnoreCase("amazon")) {
                 name1 = contentObject.getString("name");
                 url = contentObject.getString("url");
-                rrp = contentObject.getDouble("rrp");
+                if (contentObject.has("rrp")) {
+                    rrp = contentObject.getDouble("rrp");
+                }
+                else {
+                    rrp = null;
+                }
             }
-            else {
+            else if (shop.equalsIgnoreCase("google_shopping")) {
                 JSONArray offersArray = contentObject.getJSONArray("offers");
                 JSONObject offer = offersArray.getJSONObject(0);
                 name1 = contentObject.getString("name");
                 url = offer.getString("url");
-                rrp = offer.getDouble("price");
+                if (offer.has("price")) {
+                    rrp = offer.getDouble("price");
+                }
+                else {
+                    rrp = null;
+                }
+            }
+            else {
+                JSONArray offersArray = contentObject.getJSONArray("offers");
+                JSONObject offer = offersArray.getJSONObject(0);
+                name1 = offer.getString("name");
+                url = offer.getString("url");
+                if (offer.has("price")) {
+                    rrp = offer.getDouble("price");
+                }
+                else {
+                    rrp = null;
+                }
             }
 
 //            try {
