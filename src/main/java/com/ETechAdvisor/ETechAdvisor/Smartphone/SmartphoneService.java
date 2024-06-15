@@ -163,47 +163,55 @@ public class SmartphoneService {
         double score = 0;
         int total_weight = 0;
 
-
-
+        double price_score;
         if (priceMin != null && priceMax != null) {
-            double price_score = 1 - ((smartphone.getAvgPrice() - priceMin) / (priceMax - priceMin));
-            score += Math.max(0, Math.min(price_score, 1));
-            total_weight += 1;
+            price_score = 1 - ((smartphone.getAvgPrice() - priceMin) / (priceMax - priceMin));
         }
-        else{
-            double price_score = smartphone.getAvgPrice()/maxPrice.get();
-            score += Math.max(0, Math.min(price_score, 1));
-            total_weight += 1;
+        else {
+            price_score = smartphone.getAvgPrice() / maxPrice.get();
         }
+        score += Math.max(0, Math.min(price_score, 1));
+        total_weight += 1;
 
+        double storage_score;
         if (storageMin != null && storageMax != null) {
-            double storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
-            score += Math.max(0, Math.min(storage_score, 1));
-            total_weight += 1;
+            storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
         }
-        else{
-            double storage_score = (double) smartphone.getStorage() /maxStorage.get();
-            score += Math.max(0, Math.min(storage_score, 1));
-            total_weight += 1;
+        else {
+            storage_score = (double) smartphone.getStorage() / maxStorage.get();
         }
+        score += Math.max(0, Math.min(storage_score, 1));
+        total_weight += 1;
 
+        double battery_score;
         if (batteryPowerMin != null && batteryPowerMax != null) {
-            double battery_score = (double) (smartphone.getBatteryPower() - batteryPowerMin) / (batteryPowerMax - batteryPowerMin);
-            score += Math.max(0, Math.min(battery_score, 1));
-            total_weight += 1;
+            battery_score = (double) (smartphone.getBatteryPower() - batteryPowerMin) / (batteryPowerMax - batteryPowerMin);
         }
+        else {
+            battery_score = (double) smartphone.getBatteryPower() / maxBatteryPower.get();
+        }
+        score += Math.max(0, Math.min(battery_score, 1));
+        total_weight += 1;
 
+        double screen_size_score;
         if (screenSizeMin != null && screenSizeMax != null) {
-            double screen_size_score = (smartphone.getScreenSize() - screenSizeMin) / (screenSizeMax - screenSizeMin);
-            score += Math.max(0, Math.min(screen_size_score, 1));
-            total_weight += 1;
+            screen_size_score = (smartphone.getScreenSize() - screenSizeMin) / (screenSizeMax - screenSizeMin);
         }
+        else {
+            screen_size_score = smartphone.getScreenSize() / maxScreenSize.get();
+        }
+        score += Math.max(0, Math.min(screen_size_score, 1));
+        total_weight += 1;
 
+        double megapix_score;
         if (megapixMin != null && megapixMax != null) {
-            double megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
-            score += Math.max(0, Math.min(megapix_score, 1));
-            total_weight += 1;
+            megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
         }
+        else {
+            megapix_score = smartphone.getMegapix() / maxScreenSize.get();
+        }
+        score += Math.max(0, Math.min(megapix_score, 1));
+        total_weight += 1;
 
         if (os != null) {
             if (smartphone.getOs().equalsIgnoreCase(os)) {
@@ -232,15 +240,9 @@ public class SmartphoneService {
             }
             total_weight += 1;
         }
-        System.out.println(total_weight);
-        System.out.println(((score / total_weight) * 100));
-        if (total_weight > 0) {
-            int final_score = (int) ((score / total_weight) * 100);
-            smartphone.setScore(final_score);
-        }
-        else {
-            smartphone.setScore(0);
-        }
+
+        int final_score = (int) ((score / total_weight) * 100);
+        smartphone.setScore(final_score);
     }
 
     @PostConstruct
