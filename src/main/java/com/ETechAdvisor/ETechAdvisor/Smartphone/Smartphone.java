@@ -64,7 +64,7 @@ public class Smartphone {
     @Transient
     private int avgPrice;
 
-    @ManyToMany(mappedBy = "smartphone")
+    @ManyToMany(mappedBy = "smartphoneList")
     private List<Store> storeList = new ArrayList<>();
 
 //    @ManyToMany(mappedBy = "products")
