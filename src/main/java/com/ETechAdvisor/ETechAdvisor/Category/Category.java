@@ -3,16 +3,14 @@ package com.ETechAdvisor.ETechAdvisor.Category;
 import com.ETechAdvisor.ETechAdvisor.Smartphone.Smartphone;
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Data
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
