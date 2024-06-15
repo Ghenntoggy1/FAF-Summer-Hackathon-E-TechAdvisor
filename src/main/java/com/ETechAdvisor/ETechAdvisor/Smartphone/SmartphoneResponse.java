@@ -21,7 +21,7 @@ public class SmartphoneResponse {
     private int storage;
     private int batteryPower;
     private double screenSize;
-    private int megapix;
+    private double megapix;
     private List<Price> priceTags;
     private List<Spec> display;
     private List<Spec> performance;

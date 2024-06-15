@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -365,23 +367,110 @@ public class SmartphoneService {
                 '}';
     }
 
-    public SmartphoneResponse getSmartphoneById(Integer id){
+    public SmartphoneResponse getSmartphoneById(Integer id) throws IOException {
         Smartphone smartphone = smartphoneRepository.findById(id).orElse(null);
 
         if(smartphone == null) {
             return null;
         }
         List<Overview> overviews = getOverview(smartphone);
-        SmartphoneResponse smartphoneResponse = SmartphoneResponse.builder()
+        List<Price> prices = getPrices(smartphone.getName());
+        List<Spec> display = new ArrayList<>(Arrays.asList(
+            Spec.builder()
+                 .name("Screen size")
+                 .value(String.valueOf(smartphone.getScreenSize()))
+                 .description("The size of the screen (measured diagonally).")
+                 .build(),
+            Spec.builder()
+                    .name("Display Type")
+                    .value(smartphone.getDisplayType())
+                    .description("The type of technology used in the display.")
+                    .build(),
+            Spec.builder()
+                    .name("Refresh Rate")
+                    .value(String.valueOf(smartphone.getRefreshRate()))
+                    .description("Refresh rate for a display refers to the number of times per second the screen updates its image, measured in Hertz (Hz). A higher refresh rate results in smoother motion on the screen, which is especially important for fast-paced activities like gaming and watching videos.")
+                    .build(),
+            Spec.builder()
+                    .name("Resolution")
+                    .value(smartphone.getResolution())
+                    .description("The frequency at which the display is refreshed (1 Hz = once per second). A higher refresh rate results in smoother UI animations and video playback.")
+                    .build()
+        ));
+        List<Spec> performance = new ArrayList<>(Arrays.asList(
+                Spec.builder()
+                        .name("RAM")
+                        .value(String.valueOf(smartphone.getRam()))
+                        .description("Random-access memory (RAM) is a form of memory used to store working data and machine code. Having more RAM is particularly useful for multitasking, allowing you to run more programs at once or have more tabs open in your browser.")
+                        .build(),
+                Spec.builder()
+                        .name("Processor Model")
+                        .value(smartphone.getProcessorModel())
+                        .description("A processor model is like the brain of a computer or phone, deciding how fast it can think and work on tasks. Different models have varying abilities, like speed and efficiency, which affect how well devices can handle tasks and run programs.")
+                        .build(),
+                Spec.builder()
+                        .name("Processor Speed")
+                        .value(String.valueOf(smartphone.getProcessorSpeed()))
+                        .description("The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores.")
+                        .build(),
+                Spec.builder()
+                        .name("Internal Storage")
+                        .value(String.valueOf(smartphone.getStorage()))
+                        .description("The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores.")
+                        .build(),
+                Spec.builder()
+                        .name("Geekbench 6 Results")
+                        .value(String.valueOf(smartphone.getGeekbenchResult()))
+                        .description("A Geekbench result is a score that measures the performance of a smartphone's processor and memory. Higher scores indicate better performance, helping users compare the capabilities of different devices.")
+                        .build(),
+                Spec.builder()
+                        .name("Battery Power")
+                        .value(String.valueOf(smartphone.getBatteryPower()))
+                        .description("Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life.")
+                        .build()
+        ));
+        List<Spec> photoAudio = new ArrayList<>(Arrays.asList(
+                Spec.builder()
+                        .name("Camera Megapixels")
+                        .value(String.valueOf(smartphone.getMegapix()))
+                        .description("The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image.")
+                        .build(),
+                Spec.builder()
+                        .name("Audio Jack")
+                        .value(String.valueOf(smartphone.getHasAudiojack()))
+                        .description("With a standard mini jack socket, you can use the device with most headphones.")
+                        .build(),
+                Spec.builder()
+                        .name("Stereo Speakers")
+                        .value(smartphone.getStereoSpeakers())
+                        .description("Devices with stereo speakers deliver sound from independent channels on both left and right sides, creating a richer sound and a better experience.")
+                        .build()
+        ));
+
+        return SmartphoneResponse.builder()
                 .id(id)
                 .name(smartphone.getName())
                 .avgPrice(smartphone.getAvgPrice())
                 .score(smartphone.getScore())
                 .imageUrl(smartphone.getImageUrl())
-
+                .overview(overviews)
+                .storage(smartphone.getStorage())
+                .batteryPower(smartphone.getBatteryPower())
+                .screenSize(smartphone.getScreenSize())
+                .megapix(smartphone.getMegapix())
+                .priceTags(prices)
+                .display(display)
+                .performance(performance)
+                .photoAudio(photoAudio)
                 .build();
+    }
 
-        return null;
+    private List<Price> getPrices(String name) throws IOException {
+        return new ArrayList<>(Arrays.asList(
+                PriceApi.getPrice(name, "amazon"),
+                PriceApi.getPrice(name, "ebay"),
+                PriceApi.getPrice(name, "google_shopping")
+        ));
     }
     private List<Overview> getOverview(Smartphone smartphone){
         List<Overview> overviews = new ArrayList<>();
@@ -394,7 +483,7 @@ public class SmartphoneService {
         }
 
         if (smartphone.getRefreshRate() > averageRefreshRate.get()){
-            overviews.add(new Overview(smartphone.getRefreshRate(), averageRefreshRate.get(), "Hz", "Refresh Rate", "Refresh rate for a display refers to the number of times per second the screen updates its image, measured in Hertz (Hz). A higher refresh rate results in smoother motion on the screen, which is especially important for fast-paced activities like gaming and watching videos."));
+            overviews.add(new Overview(smartphone.getRefreshRate(), averageRefreshRate.get(), "Hz", "Refresh Rate", "  "));
         }
 
         if (smartphone.getRam() > averageRam.get()){
