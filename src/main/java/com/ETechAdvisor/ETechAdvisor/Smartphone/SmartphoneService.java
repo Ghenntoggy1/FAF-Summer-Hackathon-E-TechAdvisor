@@ -1,6 +1,7 @@
 package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -8,11 +9,21 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
 public class SmartphoneService {
     private final SmartphoneRepository smartphoneRepository;
+
+    private AtomicReference<Double> averageScreenSize = new AtomicReference<>(0.0);
+    private AtomicReference<Double> averageProcessorSpeed = new AtomicReference<>(0.0);
+    private AtomicReference<Integer> averageRefreshRate = new AtomicReference<>(0);
+    private AtomicReference<Integer> averageRam = new AtomicReference<>(0);
+    private AtomicReference<Integer> averageStorage = new AtomicReference<>(0);
+    private AtomicReference<Integer> averageGeekbenchResult = new AtomicReference<>(0);
+    private AtomicReference<Integer> averageBatteryPower = new AtomicReference<>(0);
+    private AtomicReference<Double> averageMegapix = new AtomicReference<>(0.0);
 
     @Autowired
     public SmartphoneService(SmartphoneRepository smartphoneRepository) {
@@ -208,5 +219,69 @@ public class SmartphoneService {
         else {
             smartphone.setScore(0);
         }
+    }
+
+    @PostConstruct
+    public void init() {
+        calculateAverages();
+    }
+
+    public void calculateAverages() {
+        List<Smartphone> smartphones = smartphoneRepository.findAll();
+
+        double totalScreenSize = smartphones.stream()
+                .mapToDouble(Smartphone::getScreenSize)
+                .sum();
+        averageScreenSize.set(totalScreenSize / smartphones.size());
+
+        double totalProcessorSpeed = smartphones.stream()
+                .mapToDouble(Smartphone::getProcessorSpeed)
+                .sum();
+        averageProcessorSpeed.set(totalProcessorSpeed / smartphones.size());
+
+        int totalRefreshRate = smartphones.stream()
+                .mapToInt(Smartphone::getRefreshRate)
+                .sum();
+        averageRefreshRate.set(totalRefreshRate / smartphones.size());
+
+        int totalRam = smartphones.stream()
+                .mapToInt(Smartphone::getRam)
+                .sum();
+        averageRam.set( totalRam / smartphones.size());
+
+        int totalStorage = smartphones.stream()
+                .mapToInt(Smartphone::getStorage)
+                .sum();
+        averageStorage.set(totalStorage / smartphones.size());
+
+        int totalGeekbenchResult = smartphones.stream()
+                .mapToInt(Smartphone::getGeekbenchResult)
+                .sum();
+        averageGeekbenchResult.set(totalGeekbenchResult / smartphones.size());
+
+        int totalBatteryPower = smartphones.stream()
+                .mapToInt(Smartphone::getBatteryPower)
+                .sum();
+        averageBatteryPower.set(totalBatteryPower / smartphones.size());
+
+        double totalMegapix = smartphones.stream()
+                .mapToDouble(Smartphone::getMegapix)
+                .sum();
+        averageMegapix.set(totalMegapix / smartphones.size());
+    }
+
+    @Override
+    public String toString() {
+        return "SmartphoneService{" +
+                "smartphoneRepository=" + smartphoneRepository +
+                ", averageScreenSize=" + averageScreenSize +
+                ", averageProcessorSpeed=" + averageProcessorSpeed +
+                ", averageRefreshRate=" + averageRefreshRate +
+                ", averageRam=" + averageRam +
+                ", averageStorage=" + averageStorage +
+                ", averageGeekbenchResult=" + averageGeekbenchResult +
+                ", averageBatteryPower=" + averageBatteryPower +
+                ", averageMegapix=" + averageMegapix +
+                '}';
     }
 }

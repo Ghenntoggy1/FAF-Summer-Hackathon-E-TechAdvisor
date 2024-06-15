@@ -15,7 +15,9 @@ public class SmartphoneController {
 
     @Autowired
     public SmartphoneController(SmartphoneService smartphoneService) {
+
         this.smartphoneService = smartphoneService;
+        String string = smartphoneService.toString();
     }
 
     @GetMapping("/all")
