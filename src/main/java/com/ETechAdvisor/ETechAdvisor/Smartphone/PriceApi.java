@@ -5,6 +5,7 @@ import okhttp3.*;
 import java.io.IOException;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PriceApi {
@@ -93,9 +94,40 @@ public class PriceApi {
         for (int i = 0; i < resultsArray.length(); i++) {
             JSONObject result = resultsArray.getJSONObject(i);
             JSONObject contentObject = result.getJSONObject("content");
-            String name1 = contentObject.getString("name");
-            String url = contentObject.getString("url");
-            double rrp = contentObject.getDouble("rrp");
+            String name1;
+            String url;
+            Double rrp;
+            if (shop.equalsIgnoreCase("amazon")) {
+                name1 = contentObject.getString("name");
+                url = contentObject.getString("url");
+                rrp = contentObject.getDouble("rrp");
+            }
+            else {
+                JSONArray offersArray = contentObject.getJSONArray("offers");
+                JSONObject offer = offersArray.getJSONObject(0);
+                name1 = contentObject.getString("name");
+                url = offer.getString("url");
+                rrp = offer.getDouble("price");
+            }
+
+//            try {
+//                name1 = contentObject.getString("name");
+//                url = contentObject.getString("url");
+//                rrp = contentObject.getDouble("rrp");
+//            }
+//            catch (JSONException e) {
+//                JSONArray offersArray = contentObject.getJSONArray("offers");
+////                for (int j = 0; j < offersArray.length(); j++) {
+////                    JSONObject offer = offersArray.getJSONObject(j);
+////                    name1 = offer.getString("name");
+////                    url = offer.getString("url");
+////                    rrp = offer.getDouble("price");
+////                }
+//                JSONObject offer = offersArray.getJSONObject(0);
+//                name1 = offer.getString("name");
+//                url = offer.getString("url");
+//                rrp = offer.getDouble("price");
+//            }
 
              price = Price.builder()
                     .name(name1)

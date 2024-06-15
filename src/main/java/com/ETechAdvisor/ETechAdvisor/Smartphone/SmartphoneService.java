@@ -375,6 +375,7 @@ public class SmartphoneService {
         }
         List<Overview> overviews = getOverview(smartphone);
         List<Price> prices = getPrices(smartphone.getName());
+
         List<Spec> display = new ArrayList<>(Arrays.asList(
             Spec.builder()
                  .name("Screen size")
@@ -467,8 +468,8 @@ public class SmartphoneService {
 
     private List<Price> getPrices(String name) throws IOException {
         return new ArrayList<>(Arrays.asList(
-                PriceApi.getPrice(name, "amazon"),
-                PriceApi.getPrice(name, "ebay"),
+//                PriceApi.getPrice(name, "amazon"),
+//                PriceApi.getPrice(name, "ebay"),
                 PriceApi.getPrice(name, "google_shopping")
         ));
     }
