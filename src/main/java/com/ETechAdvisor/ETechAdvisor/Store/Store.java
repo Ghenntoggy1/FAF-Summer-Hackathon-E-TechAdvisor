@@ -21,7 +21,7 @@ public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "store_id")
-    private int store_id;
+    private Integer store_id;
 
     @Column(name = "store_name")
     private String store_name;

@@ -24,7 +24,7 @@ public class Smartphone {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "smartphone_id")
-    private int id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
@@ -40,29 +40,53 @@ public class Smartphone {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "screen_size")
+    private Double screenSize;
+
+    @Column(name = "displayType")
+    private String displayType;
+
+    @Column(name = "refreshRate")
+    private Integer refreshRate;
+
+    @Column(name = "resolution")
+    private String resolution;
+
+    @Column(name = "RAM")
+    private Integer ram;
+
+    @Column(name = "processorModel")
+    private String processorModel;
+
+    @Column(name = "processorSpeed")
+    private Double processorSpeed;
+
     @Column(name = "storage")
-    private int storage;
+    private Integer storage;
+
+    @Column(name = "geekbenchResult")
+    private String geekbenchResult;
 
     @Column(name = "battery_power")
-    private int batteryPower;
-
-    @Column(name = "screen_size")
-    private double screenSize;
+    private Integer batteryPower;
 
     @Column(name = "megapix")
-    private double megapix;
+    private Double megapix;
+
+    @Column(name = "has_audiojack")
+    private Boolean hasAudiojack;
+
+    @Column(name = "stereo_speakers")
+    private String stereoSpeakers;
 
     @Column(name = "os")
     private String os;
 
-    @Column(name = "has_audiojack")
-    private boolean hasAudiojack;
-
     @Transient
-    private int score;
+    private Integer score;
 
-    @Transient
-    private int avgPrice;
+    @Column(name = "avg_price")
+    private Double avgPrice;
 
     @ManyToMany(mappedBy = "smartphoneList")
     private List<Store> storeList = new ArrayList<>();

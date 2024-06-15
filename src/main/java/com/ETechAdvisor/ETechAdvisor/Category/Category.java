@@ -22,12 +22,10 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "category_id")
-    private int category_id;
+    private Integer category_id;
 
     @Column(name = "category_name")
     private String category_name;
 
-    @OneToMany(cascade = CascadeType.ALL,
-               mappedBy = "category")
-    private List<Smartphone> smartphoneList = new ArrayList<>();
+
 }

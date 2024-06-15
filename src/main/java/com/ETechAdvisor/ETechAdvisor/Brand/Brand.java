@@ -22,12 +22,10 @@ public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "brand_id")
-    private int brand_id;
+    private Integer brand_id;
 
     @Column(name = "brand_name")
     private String brand_name;
 
-    @OneToMany(cascade = CascadeType.ALL,
-               mappedBy = "brand")
-    private List<Smartphone> smartphoneList = new ArrayList<>();
+
 }

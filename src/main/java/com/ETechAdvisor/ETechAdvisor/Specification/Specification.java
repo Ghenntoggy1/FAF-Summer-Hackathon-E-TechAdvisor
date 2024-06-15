@@ -22,7 +22,7 @@ public class Specification {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "specification_id")
-    private int specification_id;
+    private Integer specification_id;
 
     @Column(name = "specification_name")
     private String specification_name;
