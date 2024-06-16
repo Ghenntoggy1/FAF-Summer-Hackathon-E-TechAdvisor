@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChartData {
+public class ChartDataSingle {
     private List<String> labels = new ArrayList<>(Arrays.asList("Design","Performance","Display","Battery", "Camera", "Storage"));
-    private Dataset dataset;
+    private Dataset dataset = new Dataset();
 }

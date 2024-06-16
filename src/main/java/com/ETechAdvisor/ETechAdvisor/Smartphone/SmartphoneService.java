@@ -3,7 +3,6 @@ package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
-import org.hibernate.sql.ast.tree.expression.Over;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -301,7 +300,7 @@ public class SmartphoneService {
             megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
         }
         else {
-            megapix_score = smartphone.getMegapix() / maxScreenSize.get();
+            megapix_score = smartphone.getMegapix() / maxMegapix.get();
         }
         return megapix_score;
     }
@@ -797,18 +796,43 @@ public class SmartphoneService {
                 .build();
     }
 
-    public ChartData getSingleChartData(Integer id) {
-        ChartData chartData = new ChartData();
+    public ChartDataSingle getSingleChartData(Integer id) {
+        ChartDataSingle chartData = new ChartDataSingle();
         Smartphone smartphone = smartphoneRepository.findById(id).orElse(null);
         Random random = new Random();
         int designScore = random.nextInt(60,100);
-        int performance = (int)(getProcessorScore(smartphone,null,null) + getRAMScore(smartphone,null,null) )/ 2;
-        int display = (int)(getRefreshScore(smartphone,null,null) + getScreenSizeScore(smartphone,null,null))/2;
-        int battery = (int)(getBatteryScore(smartphone,null,null));
-        int camera = (int)(getMegapixScore(smartphone,null,null));
-        int storage = (int)(getStorageScore(smartphone,null,null));
+        int performance = (int)(getProcessorScore(smartphone,null,null)*100 + getRAMScore(smartphone,null,null) *100)/ 2;
+        int display = (int)(getRefreshScore(smartphone,null,null) *100+ getScreenSizeScore(smartphone,null,null)*100)/2;
+        int battery = (int)(getBatteryScore(smartphone,null,null)*100);
+        int camera = (int)(getMegapixScore(smartphone,null,null)*100);
+        int storage = (int)(getStorageScore(smartphone,null,null)*100);
         List<Integer> list = new ArrayList<>(Arrays.asList(designScore, performance,display,battery,camera,storage));
         chartData.getDataset().setData(list);
         return chartData;
+    }
+
+    public ChartDataDouble getDoubleChartData(Integer id, Integer other) {
+        ChartDataDouble chartDataDouble = new ChartDataDouble();
+        Smartphone smartphone1 = smartphoneRepository.findById(id).orElse(null);
+        Smartphone smartphone2 = smartphoneRepository.findById(other).orElse(null);
+        Random random1 = new Random();
+        Random random2 = new Random();
+        int designScore1 = random1.nextInt(60,100);
+        int designScore2 = random2.nextInt(60,100);
+        int performance1 = (int)(getProcessorScore(smartphone1,null,null)*100 + getRAMScore(smartphone1,null,null) *100)/ 2;
+        int performance2 = (int)(getProcessorScore(smartphone2,null,null)*100 + getRAMScore(smartphone2,null,null) *100)/ 2;
+        int display1 = (int)(getRefreshScore(smartphone1,null,null) *100+ getScreenSizeScore(smartphone1,null,null)*100)/2;
+        int display2 = (int)(getRefreshScore(smartphone2,null,null) *100+ getScreenSizeScore(smartphone2,null,null)*100)/2;
+        int battery1 = (int)(getBatteryScore(smartphone1,null,null)*100);
+        int battery2 = (int)(getBatteryScore(smartphone2,null,null)*100);
+        int camera1 = (int)(getMegapixScore(smartphone1,null,null)*100);
+        int camera2 = (int)(getMegapixScore(smartphone2,null,null)*100);
+        int storage1 = (int)(getStorageScore(smartphone1,null,null)*100);
+        int storage2 = (int)(getStorageScore(smartphone2,null,null)*100);
+        List<Integer> list1 = new ArrayList<>(Arrays.asList(designScore1, performance1,display1,battery1,camera1,storage1));
+        List<Integer> list2 = new ArrayList<>(Arrays.asList(designScore2, performance2,display2,battery2,camera2,storage2));
+        chartDataDouble.getDataset1().setData(list1);
+        chartDataDouble.getDataset2().setData(list2);
+        return chartDataDouble;
     }
 }

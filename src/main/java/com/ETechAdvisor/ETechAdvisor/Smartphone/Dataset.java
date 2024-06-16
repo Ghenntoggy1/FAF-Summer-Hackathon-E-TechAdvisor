@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -12,5 +13,5 @@ import java.util.List;
 @Builder
 @Data
 public class Dataset {
-    List<Integer> data;
+    List<Integer> data = new ArrayList<>();
 }

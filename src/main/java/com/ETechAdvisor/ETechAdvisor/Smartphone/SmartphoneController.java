@@ -1,10 +1,8 @@
 package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -64,7 +62,12 @@ public class SmartphoneController {
     }
 
     @GetMapping("/chart/{id}")
-    public ChartData getSingleChartData(@PathVariable Integer id){
+    public ChartDataSingle getSingleChartData(@PathVariable Integer id){
         return smartphoneService.getSingleChartData(id);
+    }
+
+    @GetMapping("/chart/{id}/vs/{other}")
+    public ChartDataDouble getDoubleChartData(@PathVariable Integer id, @PathVariable Integer other) {
+        return smartphoneService.getDoubleChartData(id, other);
     }
 }
