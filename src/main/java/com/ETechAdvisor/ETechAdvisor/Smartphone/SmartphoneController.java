@@ -69,11 +69,12 @@ public class SmartphoneController {
         return smartphoneService.compareSmartphones(id, other);
     }
 
-    @GetMapping("/scored-smartphones")
-    public ResponseEntity<List<SmartphoneDTO>> getScoredSmartphones(@RequestParam String prompt) {
+    @GetMapping("/prompt/{prompt}")
+    public ResponseEntity<List<SmartphoneDTO>> getScoredSmartphones(@PathVariable String prompt) {
         String completePrompt = smartphoneService.buildPrompt(prompt);
         System.out.println(completePrompt);
         Map<String, Double> importanceValues = chatGptService.getImportanceValues(completePrompt);
+        System.out.println(importanceValues);
         List<Smartphone> smartphones = smartphoneRepository.findAll();
         List<SmartphoneDTO> scoredSmartphones = smartphoneService.calculateAndSortScores(smartphones, importanceValues);
         return ResponseEntity.ok(scoredSmartphones);

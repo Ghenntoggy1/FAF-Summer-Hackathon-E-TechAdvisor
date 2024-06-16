@@ -707,7 +707,7 @@ public class SmartphoneService {
 
         if (smartphone1.getMegapix() > smartphone2.getMegapix()){
             Double megapixPercentage = ((smartphone1.getMegapix() - smartphone2.getMegapix()) / smartphone2.getMegapix()) * 100;
-            overviews.add(new Overview(smartphone1.getMegapix(), smartphone1.getMegapix(), "MP", megapixPercentage + "% More Megapixels", "The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image."));
+            overviews.add(new Overview(smartphone1.getMegapix(), smartphone2.getMegapix(), "MP", megapixPercentage + "% More Megapixels", "The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image."));
         }
 
         return overviews;
