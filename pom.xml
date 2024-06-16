@@ -96,19 +96,13 @@
 			<version>2.2</version>
 		</dependency>
 
-		<!-- DeepL API -->
 		<dependency>
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
 			<version>4.0.1</version>
 		</dependency>
 
-		<!-- Spring Boot  Mail Sender -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-			<version>3.1.4</version>
-		</dependency>
+
 
 
 	</dependencies>

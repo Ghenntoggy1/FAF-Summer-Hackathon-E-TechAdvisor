@@ -1,6 +1,7 @@
 package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 
+import com.ETechAdvisor.ETechAdvisor.ChatGPT.ChatGptService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
 import org.hibernate.sql.ast.tree.expression.Over;
@@ -9,10 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -41,6 +39,11 @@ public class SmartphoneService {
     private AtomicReference<Double> maxMegapix = new AtomicReference<>(0.0);
     private AtomicReference<Double> maxPrice = new AtomicReference<>(0.0);
     @Autowired
+    private ChatGptService chatGptService;
+
+
+    @Autowired
+
     public SmartphoneService(SmartphoneRepository smartphoneRepository) {
         this.smartphoneRepository = smartphoneRepository;
     }
@@ -694,4 +697,65 @@ public class SmartphoneService {
                 .smartphoneTwo(smartphoneResponse2)
                 .build();
     }
+
+
+    private static Map<String, List<Double>> collectValues(List<Smartphone> smartphones) {
+        Map<String, List<Double>> values = new HashMap<>();
+        // Collect values for all numeric fields specified in the DTO
+        values.put("storage", smartphones.stream().map(Smartphone::getStorage).map(Integer::doubleValue).collect(Collectors.toList()));
+        values.put("batteryPower", smartphones.stream().map(Smartphone::getBatteryPower).map(Integer::doubleValue).collect(Collectors.toList()));
+        values.put("screenSize", smartphones.stream().map(Smartphone::getScreenSize).collect(Collectors.toList()));
+        values.put("megapix", smartphones.stream().map(Smartphone::getMegapix).collect(Collectors.toList()));
+        values.put("avgPrice", smartphones.stream().map(Smartphone::getAvgPrice).collect(Collectors.toList()));
+
+        // Add any other numeric fields that require normalization and are available in the Smartphone entity
+        return values;
+    }
+
+    private static double calculateScore(Smartphone phone, Map<String, Double> weights, Map<String, List<Double>> allValues) {
+        double score = 0;
+        score += normalizedValue(phone.getStorage(), allValues.get("storage")) * weights.get("storage");
+        score += normalizedValue(phone.getBatteryPower(), allValues.get("batteryPower")) * weights.get("batteryPower");
+        score += normalizedValue(phone.getScreenSize(), allValues.get("screenSize")) * weights.get("screenSize");
+        score += normalizedValue(phone.getMegapix(), allValues.get("megapix")) * weights.get("megapix");
+        score += normalizedValue(phone.getAvgPrice(), allValues.get("avgPrice")) * weights.get("avgPrice");
+        return score * 100;
+    }
+
+    private static double normalizedValue(double value, List<Double> allValues) {
+        double minVal = Collections.min(allValues);
+        double maxVal = Collections.max(allValues);
+        if (maxVal == minVal) return 1; // All values are the same, return normalized value as 1
+        return ((value - minVal) / (maxVal - minVal));
+    }
+
+    public List<SmartphoneDTO> calculateAndSortScores(List<Smartphone> smartphones, Map<String, Double> weights) {
+        Map<String, List<Double>> allValues = collectValues(smartphones);
+        List<SmartphoneDTO> dtos = smartphones.stream()
+                .map(phone -> {
+                    double score = calculateScore(phone, weights, allValues);
+                    return new SmartphoneDTO(
+                            phone.getId(),
+                            phone.getName(),
+                            phone.getAvgPrice(),
+                            (int) Math.round(score),
+                            phone.getImageUrl(),
+                            phone.getStorage(),
+                            phone.getBatteryPower(),
+                            phone.getScreenSize(),
+                            phone.getMegapix()
+                    );
+                })
+                .sorted(Comparator.comparingDouble(SmartphoneDTO::getScore).reversed())
+                .collect(Collectors.toList());
+        return dtos;
+    }
+
+
+    public String buildPrompt(String userPrompt) {
+        String staticPrompt = "Please distribute a total importance score of 1.0 across various smartphone features according to their significance. Assign ratings between 0.1 and 1.0 to each feature, where 1.0 represents the highest importance. However, ensure that the sum of all assigned importance ratings does not exceed 1.0. Use the format 'Feature: Importance' for each feature and provide only the list with no introductory text. The features to evaluate are price, storage, battery power, screen size, and camera. Given my preference for a smartphone with substantial memory capacity, please allocate the weights accordingly, ensuring storage is prioritized. Features that are less critical to this specific need should be given a minimal importance of 0.1. ";
+        return staticPrompt + userPrompt;
+    }
+
+
 }

@@ -26,7 +26,4 @@ public class SmartphoneResponse {
     private List<Spec> display;
     private List<Spec> performance;
     private List<Spec> photoAudio;
-
-
-
 }

@@ -1,12 +1,15 @@
 package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
+import com.ETechAdvisor.ETechAdvisor.ChatGPT.ChatGptService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -15,6 +18,10 @@ import java.util.concurrent.ExecutionException;
 public class SmartphoneController {
 
     private final SmartphoneService smartphoneService;
+    @Autowired
+    private ChatGptService chatGptService;
+    @Autowired
+    private SmartphoneRepository smartphoneRepository;
 
     @Autowired
     public SmartphoneController(SmartphoneService smartphoneService) {
@@ -56,4 +63,15 @@ public class SmartphoneController {
 
         return smartphoneService.compareSmartphones(id, other);
     }
+
+    @GetMapping("/scored-smartphones")
+    public ResponseEntity<List<SmartphoneDTO>> getScoredSmartphones(@RequestParam String prompt) {
+        String completePrompt = smartphoneService.buildPrompt(prompt);
+        System.out.println(completePrompt);
+        Map<String, Double> importanceValues = chatGptService.getImportanceValues(completePrompt);
+        List<Smartphone> smartphones = smartphoneRepository.findAll();
+        List<SmartphoneDTO> scoredSmartphones = smartphoneService.calculateAndSortScores(smartphones, importanceValues);
+        return ResponseEntity.ok(scoredSmartphones);
+    }
+
 }
