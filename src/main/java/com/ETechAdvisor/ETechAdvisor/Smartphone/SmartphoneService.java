@@ -671,43 +671,43 @@ public class SmartphoneService {
         List<Overview> overviews = new ArrayList<>();
         if(smartphone1.getScreenSize() > smartphone2.getScreenSize()){
             Double screenSizePercentage = ((smartphone1.getScreenSize() - smartphone2.getScreenSize()) / smartphone2.getScreenSize()) * 100;
-            overviews.add(new Overview(smartphone1.getScreenSize(), smartphone2.getScreenSize(), "cm", screenSizePercentage + "% Bigger Screen Size", "The size of the screen (measured diagonally)."));
+            overviews.add(new Overview(smartphone1.getScreenSize(), smartphone2.getScreenSize(), "cm", String.format("%,.2f", screenSizePercentage) + "% Bigger Screen Size", "The size of the screen (measured diagonally)."));
         }
 
         if (smartphone1.getProcessorSpeed() > smartphone2.getProcessorSpeed()){
             Double processorPercentage = ((smartphone1.getProcessorSpeed() - smartphone2.getProcessorSpeed()) / (double) smartphone2.getProcessorSpeed()) * 100;
-            overviews.add(new Overview(smartphone1.getProcessorSpeed(), smartphone2.getProcessorSpeed(), "GHz", processorPercentage + "% Faster CPU Speed", "The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores."));
+            overviews.add(new Overview(smartphone1.getProcessorSpeed(), smartphone2.getProcessorSpeed(), "GHz", String.format("%,.2f", processorPercentage) + "% Faster CPU Speed", "The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores."));
         }
 
         if (smartphone1.getRefreshRate() > smartphone2.getRefreshRate()){
             Double ratePercentage = ((smartphone1.getRefreshRate() - smartphone2.getRefreshRate()) / (double) smartphone2.getRefreshRate()) * 100;
-            overviews.add(new Overview(smartphone1.getRefreshRate(), smartphone2.getRefreshRate(), "Hz", ratePercentage + "% Smoother Video Playback ", "The frequency at which the display is refreshed (1 Hz = once per second). A higher refresh rate results in smoother UI animations and video playback."));
+            overviews.add(new Overview(smartphone1.getRefreshRate(), smartphone2.getRefreshRate(), "Hz", String.format("%,.2f", ratePercentage) + "% Smoother Video Playback ", "The frequency at which the display is refreshed (1 Hz = once per second). A higher refresh rate results in smoother UI animations and video playback."));
         }
 
         if (smartphone1.getRam() > smartphone2.getRam()){
             Double ramPercentage = ((smartphone1.getRam() - smartphone2.getRam()) / (double) smartphone1.getRam()) * 100;
-            overviews.add(new Overview(smartphone1.getRam(), smartphone2.getRam(), "GB", ramPercentage + "% Faster Memory Operations", "Random-access memory (RAM) is a form of memory used to store working data and machine code. Having more RAM is particularly useful for multitasking, allowing you to run more programs at once or have more tabs open in your browser."));
+            overviews.add(new Overview(smartphone1.getRam(), smartphone2.getRam(), "GB", String.format("%,.2f",ramPercentage) + "% Faster Memory Operations", "Random-access memory (RAM) is a form of memory used to store working data and machine code. Having more RAM is particularly useful for multitasking, allowing you to run more programs at once or have more tabs open in your browser."));
         }
 
         if (smartphone1.getStorage() > smartphone2.getStorage()){
             Double storagePercentage = ((smartphone1.getStorage() - smartphone2.getStorage()) / (double) smartphone2.getStorage()) * 100;
-            overviews.add(new Overview(smartphone1.getStorage(), smartphone2.getStorage(), "GB", storagePercentage + "% Higher Capacity for Internal Storage", "The internal storage refers to the built-in storage space available in a device for system data, apps, and user-generated data. With a large amount of internal storage, you can save more files and apps on your device."));
+            overviews.add(new Overview(smartphone1.getStorage(), smartphone2.getStorage(), "GB", String.format("%,.2f", storagePercentage) + "% Higher Capacity for Internal Storage", "The internal storage refers to the built-in storage space available in a device for system data, apps, and user-generated data. With a large amount of internal storage, you can save more files and apps on your device."));
         }
 
         if (smartphone1.getGeekbenchResult() > smartphone2.getGeekbenchResult()){
             Double geekbenchPercentage = ((smartphone1.getGeekbenchResult() - smartphone2.getGeekbenchResult()) / (double) smartphone2.getGeekbenchResult()) * 100;
-            overviews.add(new Overview(smartphone1.getGeekbenchResult(), smartphone2.getGeekbenchResult(), "Points",  geekbenchPercentage+ "% Higher Geekbench Rating", "A Geekbench result is a score that measures the performance of a smartphone's processor and memory. Higher scores indicate better performance, helping users compare the capabilities of different devices."));
+            overviews.add(new Overview(smartphone1.getGeekbenchResult(), smartphone2.getGeekbenchResult(), "Points",  String.format("%,.2f", geekbenchPercentage)+ "% Higher Geekbench Rating", "A Geekbench result is a score that measures the performance of a smartphone's processor and memory. Higher scores indicate better performance, helping users compare the capabilities of different devices."));
         }
 
         if (smartphone1.getBatteryPower() > smartphone2.getBatteryPower()){
             Integer diffBatteryPower = smartphone1.getBatteryPower() - smartphone2.getBatteryPower();
             Double batteryPercentage = ((smartphone1.getBatteryPower() - smartphone2.getBatteryPower()) / (double) smartphone2.getBatteryPower()) * 100;
-            overviews.add(new Overview(smartphone1.getBatteryPower(), smartphone2.getBatteryPower(), "mAh", batteryPercentage + "% Longer Work Time - approx. " + diffBatteryPower / (0.75 * 1000) + " More Time", "Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life."));
+            overviews.add(new Overview(smartphone1.getBatteryPower(), smartphone2.getBatteryPower(), "mAh", batteryPercentage + "% Longer Work Time - approx. " + String.format("%,.2f", diffBatteryPower / (0.75 * 1000)) + " More Time", "Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life."));
         }
 
         if (smartphone1.getMegapix() > smartphone2.getMegapix()){
             Double megapixPercentage = ((smartphone1.getMegapix() - smartphone2.getMegapix()) / smartphone2.getMegapix()) * 100;
-            overviews.add(new Overview(smartphone1.getMegapix(), smartphone2.getMegapix(), "MP", megapixPercentage + "% More Megapixels", "The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image."));
+            overviews.add(new Overview(smartphone1.getMegapix(), smartphone2.getMegapix(), "MP", String.format("%,.2f", megapixPercentage) + "% More Megapixels", "The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image."));
         }
 
         return overviews;
