@@ -9,7 +9,9 @@ import org.springframework.web.client.RestTemplate;
 public class ETechAdvisorApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(ETechAdvisorApplication.class, args);
+		System.out.println("hello");
 	}
 	@Bean
 

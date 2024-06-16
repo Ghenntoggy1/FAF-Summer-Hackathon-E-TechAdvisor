@@ -4,7 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @CrossOrigin
@@ -15,10 +18,12 @@ public class SmartphoneController {
 
     @Autowired
     public SmartphoneController(SmartphoneService smartphoneService) {
+
         this.smartphoneService = smartphoneService;
+        System.out.println(smartphoneService.toString());
     }
 
-    @GetMapping("/all")
+    @GetMapping("")
     public List<SmartphoneDTO> getOffers(
             @RequestParam(required = false) Double priceMin,
             @RequestParam(required = false) Double priceMax,
@@ -38,5 +43,17 @@ public class SmartphoneController {
         return smartphoneService.getFilteredSmartphones(priceMin, priceMax, brand, displayType, storageMin,
                 storageMax, hasAudioJack, megapixMin, megapixMax, batteryPowerMin, batteryPowerMax,
                 screenSizeMin, screenSizeMax, os);
+    }
+
+    @GetMapping("/{id}")
+    public SmartphoneResponse getSmartphoneById(@PathVariable Integer id) throws IOException, ExecutionException, InterruptedException {
+        return smartphoneService.getSmartphoneById(id);
+    }
+
+    @GetMapping("/{id}/vs/{other}")
+    public CompareResponse compareSmartphones(@PathVariable Integer id,
+                                              @PathVariable Integer other) throws IOException, ExecutionException, InterruptedException {
+
+        return smartphoneService.compareSmartphones(id, other);
     }
 }

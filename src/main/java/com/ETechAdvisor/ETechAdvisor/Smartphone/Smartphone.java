@@ -65,7 +65,7 @@ public class Smartphone {
     private Integer storage;
 
     @Column(name = "geekbenchResult")
-    private String geekbenchResult;
+    private Integer geekbenchResult;
 
     @Column(name = "battery_power")
     private Integer batteryPower;
