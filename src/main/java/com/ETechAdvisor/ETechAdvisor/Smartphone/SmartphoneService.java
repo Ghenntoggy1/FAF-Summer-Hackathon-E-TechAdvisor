@@ -9,10 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -798,5 +795,20 @@ public class SmartphoneService {
                 .smartphoneOne(smartphoneResponse1)
                 .smartphoneTwo(smartphoneResponse2)
                 .build();
+    }
+
+    public ChartData getSingleChartData(Integer id) {
+        ChartData chartData = new ChartData();
+        Smartphone smartphone = smartphoneRepository.findById(id).orElse(null);
+        Random random = new Random();
+        int designScore = random.nextInt(60,100);
+        int performance = (int)(getProcessorScore(smartphone,null,null) + getRAMScore(smartphone,null,null) )/ 2;
+        int display = (int)(getRefreshScore(smartphone,null,null) + getScreenSizeScore(smartphone,null,null))/2;
+        int battery = (int)(getBatteryScore(smartphone,null,null));
+        int camera = (int)(getMegapixScore(smartphone,null,null));
+        int storage = (int)(getStorageScore(smartphone,null,null));
+        List<Integer> list = new ArrayList<>(Arrays.asList(designScore, performance,display,battery,camera,storage));
+        chartData.getDataset().setData(list);
+        return chartData;
     }
 }

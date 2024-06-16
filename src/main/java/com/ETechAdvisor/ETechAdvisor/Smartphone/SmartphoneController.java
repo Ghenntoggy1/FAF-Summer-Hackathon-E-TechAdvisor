@@ -62,4 +62,9 @@ public class SmartphoneController {
 
         return smartphoneService.compareSmartphones(id, other);
     }
+
+    @GetMapping("/chart/{id}")
+    public ChartData getSingleChartData(@PathVariable Integer id){
+        return smartphoneService.getSingleChartData(id);
+    }
 }
