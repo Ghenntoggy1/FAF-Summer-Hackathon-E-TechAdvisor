@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -367,7 +368,7 @@ public class SmartphoneService {
                 '}';
     }
 
-    public SmartphoneResponse getSmartphoneById(Integer id) throws IOException {
+    public SmartphoneResponse getSmartphoneById(Integer id) throws IOException, ExecutionException, InterruptedException {
         Smartphone smartphone = smartphoneRepository.findById(id).orElse(null);
 
         if(smartphone == null) {
@@ -467,12 +468,34 @@ public class SmartphoneService {
                 .build();
     }
 
-    private List<Price> getPrices(String name) throws IOException {
-        return new ArrayList<>(Arrays.asList(
-                PriceApi.getPrice(name, "amazon"),
-                PriceApi.getPrice(name, "ebay"),
-                PriceApi.getPrice(name, "google_shopping")
-        ));
+    public List<Price> getPrices(String name) throws InterruptedException, ExecutionException {
+        ExecutorService executorService = Executors.newFixedThreadPool(3); // Create a thread pool with 3 threads
+        PriceApi priceApi = new PriceApi();
+        List<Callable<Price>> callables = List.of(
+                () -> priceApi.getPrice(name, "amazon"),
+                () -> priceApi.getPrice(name, "ebay"),
+                () -> priceApi.getPrice(name, "google_shopping")
+        );
+
+        List<Future<Price>> futures = executorService.invokeAll(callables);
+
+        List<Price> prices = new ArrayList<>();
+
+        for (Future<Price> future : futures) {
+            try {
+                Price price = future.get(); // This will block until the result is available
+                if (price != null) {
+                    prices.add(price);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                // Handle exceptions as needed
+                e.printStackTrace();
+            }
+        }
+
+        executorService.shutdown(); // Shutdown the executor service
+
+        return prices;
     }
     private List<Overview> getOverview(Smartphone smartphone){
         List<Overview> overviews = new ArrayList<>();
@@ -556,7 +579,7 @@ public class SmartphoneService {
         return overviews;
     }
 
-    private SmartphoneResponse createSmartphone(Smartphone smartphone, Smartphone smartphone2) throws IOException {
+    private SmartphoneResponse createSmartphone(Smartphone smartphone, Smartphone smartphone2) throws IOException, ExecutionException, InterruptedException {
         if(smartphone == null) {
             return null;
         }
@@ -653,7 +676,7 @@ public class SmartphoneService {
                 .photoAudio(photoAudio)
                 .build();
     }
-    public CompareResponse compareSmartphones(Integer id, Integer other) throws IOException {
+    public CompareResponse compareSmartphones(Integer id, Integer other) throws IOException, ExecutionException, InterruptedException {
         Smartphone smartphone1 = smartphoneRepository.findById(id).orElse(null);
         Smartphone smartphone2 = smartphoneRepository.findById(other).orElse(null);
         int winnner;

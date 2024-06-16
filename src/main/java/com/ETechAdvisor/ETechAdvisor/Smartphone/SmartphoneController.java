@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @CrossOrigin
@@ -45,13 +46,13 @@ public class SmartphoneController {
     }
 
     @GetMapping("/{id}")
-    public SmartphoneResponse getSmartphoneById(@PathVariable Integer id) throws IOException {
+    public SmartphoneResponse getSmartphoneById(@PathVariable Integer id) throws IOException, ExecutionException, InterruptedException {
         return smartphoneService.getSmartphoneById(id);
     }
 
     @GetMapping("/{id}/vs/{other}")
     public CompareResponse compareSmartphones(@PathVariable Integer id,
-                                              @PathVariable Integer other) throws IOException {
+                                              @PathVariable Integer other) throws IOException, ExecutionException, InterruptedException {
 
         return smartphoneService.compareSmartphones(id, other);
     }

@@ -1,25 +1,28 @@
 package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 import okhttp3.*;
+import org.json.*;
 
 import java.io.IOException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 public class PriceApi {
 
     private static final String API_TOKEN = "QQVPGGOLZVFZBGPVHRXIYYFCNBGKXGUNZCVPMBRZVFDMJARGPIEXMSVSSUXWGQIX";
+    private OkHttpClient client;
 
-    public static Price getPrice(String name, String shop) throws IOException {
-        OkHttpClient client = new OkHttpClient();
+    public PriceApi() {
+        this.client = new OkHttpClient();
+    }
 
+    public Price getPrice(String name, String shop) throws IOException {
         // Step 1: Submitting a Job
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType,
-                "{\"source\":\""+shop+"\",\"country\":\"us\",\"topic\":\"product_and_offers\",\"key\":\"term\"," +
-                        "\"values\":\""+name+"\",\"max_pages\":1,\"max_age\":1200}");
+                "{\"source\":\"" + shop + "\",\"country\":\"us\",\"topic\":\"product_and_offers\",\"key\":\"term\"," +
+                        "\"values\":\"" + name + "\",\"max_pages\":1,\"max_age\":1200}");
 
         Request request = new Request.Builder()
                 .url("https://api.priceapi.com/v2/jobs?token=" + API_TOKEN)
@@ -67,7 +70,7 @@ public class PriceApi {
 
             if (!jobFinished) {
                 try {
-                    Thread.sleep(500); // Wait for 5 seconds before checking status again
+                    Thread.sleep(500); // Wait for 500 milliseconds before checking status again
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -102,65 +105,42 @@ public class PriceApi {
                 url = contentObject.getString("url");
                 if (contentObject.has("rrp")) {
                     rrp = contentObject.getDouble("rrp");
-                }
-                else {
+                } else {
                     rrp = null;
                 }
-            }
-            else if (shop.equalsIgnoreCase("google_shopping")) {
+            } else if (shop.equalsIgnoreCase("google_shopping")) {
                 JSONArray offersArray = contentObject.getJSONArray("offers");
                 JSONObject offer = offersArray.getJSONObject(0);
                 name1 = contentObject.getString("name");
                 url = offer.getString("url");
                 if (offer.has("price")) {
                     rrp = offer.getDouble("price");
-                }
-                else {
+                } else {
                     rrp = null;
                 }
-            }
-            else {
+            } else {
                 JSONArray offersArray = contentObject.getJSONArray("offers");
                 JSONObject offer = offersArray.getJSONObject(0);
                 name1 = offer.getString("name");
                 url = offer.getString("url");
                 if (offer.has("price")) {
                     rrp = offer.getDouble("price");
-                }
-                else {
+                } else {
                     rrp = null;
                 }
             }
 
-//            try {
-//                name1 = contentObject.getString("name");
-//                url = contentObject.getString("url");
-//                rrp = contentObject.getDouble("rrp");
-//            }
-//            catch (JSONException e) {
-//                JSONArray offersArray = contentObject.getJSONArray("offers");
-////                for (int j = 0; j < offersArray.length(); j++) {
-////                    JSONObject offer = offersArray.getJSONObject(j);
-////                    name1 = offer.getString("name");
-////                    url = offer.getString("url");
-////                    rrp = offer.getDouble("price");
-////                }
-//                JSONObject offer = offersArray.getJSONObject(0);
-//                name1 = offer.getString("name");
-//                url = offer.getString("url");
-//                rrp = offer.getDouble("price");
-//            }
-
-             price = Price.builder()
+            price = Price.builder()
                     .name(name1)
                     .url(url)
                     .price(rrp)
                     .merchant(shop)
                     .build();
-            System.out.println();
         }
 
         response.close();
         return price;
     }
+
+
 }
