@@ -543,8 +543,9 @@ public class SmartphoneService {
         }
 
         if (smartphone1.getBatteryPower() > smartphone2.getBatteryPower()){
+            Integer diffBatteryPower = smartphone1.getBatteryPower() - smartphone2.getBatteryPower();
             Double batteryPercentage = ((smartphone1.getBatteryPower() - smartphone2.getBatteryPower()) / (double) smartphone2.getBatteryPower()) * 100;
-            overviews.add(new Overview(smartphone1.getBatteryPower(), smartphone2.getBatteryPower(), "mAh", batteryPercentage + "% Longer Work Time", "Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life."));
+            overviews.add(new Overview(smartphone1.getBatteryPower(), smartphone2.getBatteryPower(), "mAh", batteryPercentage + "% Longer Work Time - approx. " + diffBatteryPower / (0.75 * 1000) + " More Time", "Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life."));
         }
 
         if (smartphone1.getMegapix() > smartphone2.getMegapix()){
