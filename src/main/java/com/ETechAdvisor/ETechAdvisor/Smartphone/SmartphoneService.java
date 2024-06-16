@@ -151,8 +151,14 @@ public class SmartphoneService {
     private void calculateScore(Smartphone smartphone,
                                 Double priceMin,
                                 Double priceMax,
+                                Double processorSpeedMin,
+                                Double processorSpeedMax,
+                                Integer refreshRateMin,
+                                Integer refreshRateMax,
                                 Integer batteryPowerMin,
                                 Integer batteryPowerMax,
+                                Integer ramMin,
+                                Integer ramMax,
                                 String brand,
                                 String displayType,
                                 Integer storageMin,
@@ -167,6 +173,15 @@ public class SmartphoneService {
         int total_weight = 0;
 
         score += Math.max(0, Math.min(getPriceScore(smartphone, priceMin, priceMax), 1));
+        total_weight += 1;
+
+        score += Math.max(0, Math.min(getRAMScore(smartphone, ramMin, ramMax), 1));
+        total_weight += 1;
+
+        score += Math.max(0, Math.min(getProcessorScore(smartphone, processorSpeedMin, processorSpeedMax), 1));
+        total_weight += 1;
+
+        score += Math.max(0, Math.min(getRefreshScore(smartphone, refreshRateMin, refreshRateMax), 1));
         total_weight += 1;
 
         score += Math.max(0, Math.min(getStorageScore(smartphone, storageMin, storageMax), 1));
@@ -211,6 +226,39 @@ public class SmartphoneService {
 
         int final_score = (int) ((score / total_weight) * 100);
         smartphone.setScore(final_score);
+    }
+
+    private int getRAMScore(Smartphone smartphone, Integer ramMin, Integer ramMax) {
+        int ram_score;
+        if (ramMin != null && ramMax != null) {
+            ram_score = (smartphone.getRam() - ramMin) / (ramMax - ramMin);
+        }
+        else {
+            ram_score = smartphone.getRam() / maxRam.get();
+        }
+        return ram_score;
+    }
+
+    private int getRefreshScore(Smartphone smartphone, Integer refreshRateMin, Integer refreshRateMax) {
+        int refresh_rate_score;
+        if (refreshRateMin != null && refreshRateMax != null) {
+            refresh_rate_score = (smartphone.getRefreshRate() - refreshRateMin) / (refreshRateMax - refreshRateMin);
+        }
+        else {
+            refresh_rate_score = smartphone.getRefreshRate() / maxRefreshRate.get();
+        }
+        return refresh_rate_score;
+    }
+
+    private double getProcessorScore(Smartphone smartphone, Double processorSpeedMin, Double processorSpeedMax) {
+        double processor_score;
+        if (processorSpeedMin != null && processorSpeedMax != null) {
+            processor_score = (smartphone.getProcessorSpeed() - processorSpeedMin) / (processorSpeedMax - processorSpeedMin);
+        }
+        else {
+            processor_score = smartphone.getProcessorSpeed() / maxProcessorSpeed.get();
+        }
+        return processor_score;
     }
 
     private double getMegapixScore(Smartphone smartphone, Integer megapixMin, Integer megapixMax) {
