@@ -91,6 +91,8 @@ public class Smartphone {
     @ManyToMany(mappedBy = "smartphoneList")
     private List<Store> storeList = new ArrayList<>();
 
+
+
 //    @ManyToMany(mappedBy = "products")
 //    private List<Specification> specificationList = new ArrayList<>();
 }
