@@ -99,12 +99,12 @@ public class PriceApi {
             JSONObject contentObject = result.getJSONObject("content");
             String name1;
             String url;
-            Double rrp;
+            String rrp;
             if (shop.equalsIgnoreCase("amazon")) {
                 name1 = contentObject.getString("name");
                 url = contentObject.getString("url");
                 if (contentObject.has("rrp")) {
-                    rrp = contentObject.getDouble("rrp");
+                    rrp = contentObject.getString("rrp");
                 } else {
                     rrp = null;
                 }
@@ -114,7 +114,7 @@ public class PriceApi {
                 name1 = contentObject.getString("name");
                 url = offer.getString("url");
                 if (offer.has("price")) {
-                    rrp = offer.getDouble("price");
+                    rrp = offer.getString("price");
                 } else {
                     rrp = null;
                 }
@@ -124,7 +124,7 @@ public class PriceApi {
                 name1 = offer.getString("name");
                 url = offer.getString("url");
                 if (offer.has("price")) {
-                    rrp = offer.getDouble("price");
+                    rrp = offer.getString("price");
                 } else {
                     rrp = null;
                 }
@@ -133,7 +133,7 @@ public class PriceApi {
             price = Price.builder()
                     .name(name1)
                     .url(url)
-                    .price(rrp)
+                    .price(rrp.toString())
                     .merchant(shop)
                     .build();
         }

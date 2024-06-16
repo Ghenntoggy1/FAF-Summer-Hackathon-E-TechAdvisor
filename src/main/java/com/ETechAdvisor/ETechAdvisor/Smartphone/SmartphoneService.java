@@ -306,19 +306,19 @@ public class SmartphoneService {
         smartphone.setScore(final_score);
     }
 
-    private int getRAMScore(Smartphone smartphone, Integer ramMin, Integer ramMax) {
-        int ram_score;
+    private double getRAMScore(Smartphone smartphone, Integer ramMin, Integer ramMax) {
+        double ram_score;
         if (ramMin != null && ramMax != null) {
             ram_score = (smartphone.getRam() - ramMin) / (ramMax - ramMin);
         }
         else {
-            ram_score = smartphone.getRam() / maxRam.get();
+            ram_score = (double)smartphone.getRam() / maxRam.get();
         }
         return ram_score;
     }
 
-    private int getRefreshScore(Smartphone smartphone, Integer refreshRateMin, Integer refreshRateMax) {
-        int refresh_rate_score;
+    private double getRefreshScore(Smartphone smartphone, Integer refreshRateMin, Integer refreshRateMax) {
+        double refresh_rate_score;
         if (refreshRateMin != null && refreshRateMax != null) {
             refresh_rate_score = (smartphone.getRefreshRate() - refreshRateMin) / (refreshRateMax - refreshRateMin);
         }

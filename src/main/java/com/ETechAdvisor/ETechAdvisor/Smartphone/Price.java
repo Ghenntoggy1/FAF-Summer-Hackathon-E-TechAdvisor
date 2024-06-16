@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class Price {
     private String name;
     private String url;
-    private Double price;
+    private String price;
     private String merchant;
 }
