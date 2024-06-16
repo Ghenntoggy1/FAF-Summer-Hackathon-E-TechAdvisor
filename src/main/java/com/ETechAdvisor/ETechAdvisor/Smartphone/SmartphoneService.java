@@ -166,54 +166,19 @@ public class SmartphoneService {
         double score = 0;
         int total_weight = 0;
 
-        double price_score;
-        if (priceMin != null && priceMax != null) {
-            price_score = 1 - ((smartphone.getAvgPrice() - priceMin) / (priceMax - priceMin));
-        }
-        else {
-            price_score = smartphone.getAvgPrice() / maxPrice.get();
-        }
-        score += Math.max(0, Math.min(price_score, 1));
+        score += Math.max(0, Math.min(getPriceScore(smartphone, priceMin, priceMax), 1));
         total_weight += 1;
 
-        double storage_score;
-        if (storageMin != null && storageMax != null) {
-            storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
-        }
-        else {
-            storage_score = (double) smartphone.getStorage() / maxStorage.get();
-        }
-        score += Math.max(0, Math.min(storage_score, 1));
+        score += Math.max(0, Math.min(getStorageScore(smartphone, storageMin, storageMax), 1));
         total_weight += 1;
 
-        double battery_score;
-        if (batteryPowerMin != null && batteryPowerMax != null) {
-            battery_score = (double) (smartphone.getBatteryPower() - batteryPowerMin) / (batteryPowerMax - batteryPowerMin);
-        }
-        else {
-            battery_score = (double) smartphone.getBatteryPower() / maxBatteryPower.get();
-        }
-        score += Math.max(0, Math.min(battery_score, 1));
+        score += Math.max(0, Math.min(getBatteryScore(smartphone, batteryPowerMin, batteryPowerMax), 1));
         total_weight += 1;
 
-        double screen_size_score;
-        if (screenSizeMin != null && screenSizeMax != null) {
-            screen_size_score = (smartphone.getScreenSize() - screenSizeMin) / (screenSizeMax - screenSizeMin);
-        }
-        else {
-            screen_size_score = smartphone.getScreenSize() / maxScreenSize.get();
-        }
-        score += Math.max(0, Math.min(screen_size_score, 1));
+        score += Math.max(0, Math.min(getScreenSizeScore(smartphone, screenSizeMin, screenSizeMax), 1));
         total_weight += 1;
 
-        double megapix_score;
-        if (megapixMin != null && megapixMax != null) {
-            megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
-        }
-        else {
-            megapix_score = smartphone.getMegapix() / maxScreenSize.get();
-        }
-        score += Math.max(0, Math.min(megapix_score, 1));
+        score += Math.max(0, Math.min(getMegapixScore(smartphone, megapixMin, megapixMax), 1));
         total_weight += 1;
 
         if (os != null) {
@@ -246,6 +211,61 @@ public class SmartphoneService {
 
         int final_score = (int) ((score / total_weight) * 100);
         smartphone.setScore(final_score);
+    }
+
+    private double getMegapixScore(Smartphone smartphone, Integer megapixMin, Integer megapixMax) {
+        double megapix_score;
+        if (megapixMin != null && megapixMax != null) {
+            megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
+        }
+        else {
+            megapix_score = smartphone.getMegapix() / maxScreenSize.get();
+        }
+        return megapix_score;
+    }
+
+    private double getScreenSizeScore(Smartphone smartphone, Double screenSizeMin, Double screenSizeMax) {
+        double screen_size_score;
+        if (screenSizeMin != null && screenSizeMax != null) {
+            screen_size_score = (smartphone.getScreenSize() - screenSizeMin) / (screenSizeMax - screenSizeMin);
+        }
+        else {
+            screen_size_score = smartphone.getScreenSize() / maxScreenSize.get();
+        }
+        return screen_size_score;
+    }
+
+    private double getBatteryScore(Smartphone smartphone, Integer batteryPowerMin, Integer batteryPowerMax) {
+        double battery_score;
+        if (batteryPowerMin != null && batteryPowerMax != null) {
+            battery_score = (double) (smartphone.getBatteryPower() - batteryPowerMin) / (batteryPowerMax - batteryPowerMin);
+        }
+        else {
+            battery_score = (double) smartphone.getBatteryPower() / maxBatteryPower.get();
+        }
+        return battery_score;
+    }
+
+    private double getStorageScore(Smartphone smartphone, Integer storageMin, Integer storageMax) {
+        double storage_score;
+        if (storageMin != null && storageMax != null) {
+            storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
+        }
+        else {
+            storage_score = (double) smartphone.getStorage() / maxStorage.get();
+        }
+        return storage_score;
+    }
+
+    private double getPriceScore(Smartphone smartphone, Double priceMin, Double priceMax) {
+        double price_score;
+        if (priceMin != null && priceMax != null) {
+            price_score = 1 - ((smartphone.getAvgPrice() - priceMin) / (priceMax - priceMin));
+        }
+        else {
+            price_score = smartphone.getAvgPrice() / maxPrice.get();
+        }
+        return price_score;
     }
 
     @PostConstruct
