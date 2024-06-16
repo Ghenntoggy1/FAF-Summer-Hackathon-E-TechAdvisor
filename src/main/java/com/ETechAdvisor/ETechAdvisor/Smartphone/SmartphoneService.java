@@ -1,10 +1,8 @@
 package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 
-import com.ETechAdvisor.ETechAdvisor.ChatGPT.ChatGptService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
-import org.hibernate.sql.ast.tree.expression.Over;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -39,11 +37,6 @@ public class SmartphoneService {
     private AtomicReference<Double> maxMegapix = new AtomicReference<>(0.0);
     private AtomicReference<Double> maxPrice = new AtomicReference<>(0.0);
     @Autowired
-    private ChatGptService chatGptService;
-
-
-    @Autowired
-
     public SmartphoneService(SmartphoneRepository smartphoneRepository) {
         this.smartphoneRepository = smartphoneRepository;
     }
@@ -68,7 +61,7 @@ public class SmartphoneService {
                                                       Double screenSizeMin,
                                                       Double screenSizeMax,
                                                       String os) {
-            Specification<Smartphone> smartphoneSpecification = (root, query, criteriaBuilder) -> {
+        Specification<Smartphone> smartphoneSpecification = (root, query, criteriaBuilder) -> {
             List<Predicate> predicateList = new ArrayList<>();
 
             if (priceMin != null) {
@@ -163,7 +156,7 @@ public class SmartphoneService {
         };
 
         List<Smartphone> filteredSmartphones = smartphoneRepository.findAll(smartphoneSpecification);
-
+        calculateMaxValues(filteredSmartphones);
         for (Smartphone smartphone : filteredSmartphones) {
             calculateScore(smartphone, priceMin, priceMax, processorSpeedMin, processorSpeedMax, refreshRateMin,
                     refreshRateMax, batteryPowerMin, batteryPowerMax, ramMin, ramMax, brand, displayType, storageMin,
@@ -210,57 +203,76 @@ public class SmartphoneService {
                                 Double screenSizeMax,
                                 String os){
         double score = 0;
-        int total_weight = 0;
+        double total_weight = 0;
+        if (priceMin == null || priceMax == null) {
+            score += Math.max(0, Math.min(getPriceScore(smartphone, priceMin, priceMax), 1)) ;
+            total_weight += 0.5;
+        }
+        else if(!priceMin.equals(priceMax)){
+            score += Math.max(0, Math.min(getPriceScore(smartphone, priceMin, priceMax), 1));
+            total_weight += 1;
+        }
+        if (ramMin == null || ramMax == null) {
+            score += Math.max(0, Math.min(getRAMScore(smartphone, ramMin, ramMax), 1)) ;
+            total_weight += 0.5;
+        }
+        else if(!ramMin.equals(ramMax)){
+            score += Math.max(0, Math.min(getRAMScore(smartphone, ramMin, ramMax), 1));
+            total_weight += 1;
+        }
+        if (processorSpeedMin == null || processorSpeedMax == null) {
+            score += Math.max(0, Math.min(getProcessorScore(smartphone, processorSpeedMin, processorSpeedMax), 1));
+            total_weight += 0.5;
+        }
+        else if(!processorSpeedMin.equals(processorSpeedMax)){
+            score += Math.max(0, Math.min(getProcessorScore(smartphone, processorSpeedMin, processorSpeedMax), 1));
+            total_weight += 1;
+        }
 
-        double price_score;
-        if (priceMin != null && priceMax != null) {
-            price_score = 1 - ((smartphone.getAvgPrice() - priceMin) / (priceMax - priceMin));
+        if (refreshRateMin == null || refreshRateMax == null) {
+            score += Math.max(0, Math.min(getRefreshScore(smartphone, refreshRateMin, refreshRateMax), 1)) ;
+            total_weight += 0.5;
         }
-        else {
-            price_score = smartphone.getAvgPrice() / maxPrice.get();
+        else if (!refreshRateMin.equals(refreshRateMax)){
+            score += Math.max(0, Math.min(getRefreshScore(smartphone, refreshRateMin, refreshRateMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(price_score, 1));
-        total_weight += 1;
 
-        double storage_score;
-        if (storageMin != null && storageMax != null) {
-            storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
+        if (storageMin == null || storageMax == null) {
+            score += Math.max(0, Math.min(getStorageScore(smartphone, storageMin, storageMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            storage_score = (double) smartphone.getStorage() / maxStorage.get();
+        else if(!storageMin.equals(storageMax)){
+            score += Math.max(0, Math.min(getStorageScore(smartphone, storageMin, storageMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(storage_score, 1));
-        total_weight += 1;
 
-        double battery_score;
-        if (batteryPowerMin != null && batteryPowerMax != null) {
-            battery_score = (double) (smartphone.getBatteryPower() - batteryPowerMin) / (batteryPowerMax - batteryPowerMin);
+        if (batteryPowerMin == null || batteryPowerMax == null) {
+            score += Math.max(0, Math.min(getBatteryScore(smartphone, batteryPowerMin, batteryPowerMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            battery_score = (double) smartphone.getBatteryPower() / maxBatteryPower.get();
+        else if(!batteryPowerMin.equals(batteryPowerMax)){
+            score += Math.max(0, Math.min(getBatteryScore(smartphone, batteryPowerMin, batteryPowerMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(battery_score, 1));
-        total_weight += 1;
 
-        double screen_size_score;
-        if (screenSizeMin != null && screenSizeMax != null) {
-            screen_size_score = (smartphone.getScreenSize() - screenSizeMin) / (screenSizeMax - screenSizeMin);
+        if (screenSizeMin == null || screenSizeMax == null) {
+            score += Math.max(0, Math.min(getScreenSizeScore(smartphone, screenSizeMin, screenSizeMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            screen_size_score = smartphone.getScreenSize() / maxScreenSize.get();
+        else if(!screenSizeMin.equals(screenSizeMax)){
+            score += Math.max(0, Math.min(getScreenSizeScore(smartphone, screenSizeMin, screenSizeMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(screen_size_score, 1));
-        total_weight += 1;
 
-        double megapix_score;
-        if (megapixMin != null && megapixMax != null) {
-            megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
+        if (megapixMin == null || megapixMax == null) {
+            score += Math.max(0, Math.min(getMegapixScore(smartphone, megapixMin, megapixMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            megapix_score = smartphone.getMegapix() / maxScreenSize.get();
+        else if(!megapixMin.equals(megapixMax)){
+            score += Math.max(0, Math.min(getMegapixScore(smartphone, megapixMin, megapixMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(megapix_score, 1));
-        total_weight += 1;
 
         if (os != null) {
             if (smartphone.getOs().equalsIgnoreCase(os)) {
@@ -385,7 +397,6 @@ public class SmartphoneService {
     @PostConstruct
     public void init() {
         calculateAverages();
-        calculateMaxValues();
     }
 
     public void calculateAverages() {
@@ -431,8 +442,8 @@ public class SmartphoneService {
                 .sum();
         averageMegapix.set(totalMegapix / size);
     }
-    public void calculateMaxValues() {
-        List<Smartphone> smartphones = smartphoneRepository.findAll();
+
+    public void calculateMaxValues(List<Smartphone> smartphones) {
 
         double maxScreenSizeValue = smartphones.stream()
                 .mapToDouble(Smartphone::getScreenSize)
@@ -671,43 +682,43 @@ public class SmartphoneService {
         List<Overview> overviews = new ArrayList<>();
         if(smartphone1.getScreenSize() > smartphone2.getScreenSize()){
             Double screenSizePercentage = ((smartphone1.getScreenSize() - smartphone2.getScreenSize()) / smartphone2.getScreenSize()) * 100;
-            overviews.add(new Overview(smartphone1.getScreenSize(), smartphone2.getScreenSize(), "cm", screenSizePercentage + "% Bigger Screen Size", "The size of the screen (measured diagonally)."));
+            overviews.add(new Overview(smartphone1.getScreenSize(), smartphone2.getScreenSize(), "cm", String.format("%,.2f", screenSizePercentage) + "% Bigger Screen Size", "The size of the screen (measured diagonally)."));
         }
 
         if (smartphone1.getProcessorSpeed() > smartphone2.getProcessorSpeed()){
             Double processorPercentage = ((smartphone1.getProcessorSpeed() - smartphone2.getProcessorSpeed()) / (double) smartphone2.getProcessorSpeed()) * 100;
-            overviews.add(new Overview(smartphone1.getProcessorSpeed(), smartphone2.getProcessorSpeed(), "GHz", processorPercentage + "% Faster CPU Speed", "The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores."));
+            overviews.add(new Overview(smartphone1.getProcessorSpeed(), smartphone2.getProcessorSpeed(), "GHz", String.format("%,.2f", processorPercentage) + "% Faster CPU Speed", "The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores."));
         }
 
         if (smartphone1.getRefreshRate() > smartphone2.getRefreshRate()){
             Double ratePercentage = ((smartphone1.getRefreshRate() - smartphone2.getRefreshRate()) / (double) smartphone2.getRefreshRate()) * 100;
-            overviews.add(new Overview(smartphone1.getRefreshRate(), smartphone2.getRefreshRate(), "Hz", ratePercentage + "% Smoother Video Playback ", "The frequency at which the display is refreshed (1 Hz = once per second). A higher refresh rate results in smoother UI animations and video playback."));
+            overviews.add(new Overview(smartphone1.getRefreshRate(), smartphone2.getRefreshRate(), "Hz", String.format("%,.2f", ratePercentage) + "% Smoother Video Playback ", "The frequency at which the display is refreshed (1 Hz = once per second). A higher refresh rate results in smoother UI animations and video playback."));
         }
 
         if (smartphone1.getRam() > smartphone2.getRam()){
             Double ramPercentage = ((smartphone1.getRam() - smartphone2.getRam()) / (double) smartphone1.getRam()) * 100;
-            overviews.add(new Overview(smartphone1.getRam(), smartphone2.getRam(), "GB", ramPercentage + "% Faster Memory Operations", "Random-access memory (RAM) is a form of memory used to store working data and machine code. Having more RAM is particularly useful for multitasking, allowing you to run more programs at once or have more tabs open in your browser."));
+            overviews.add(new Overview(smartphone1.getRam(), smartphone2.getRam(), "GB", String.format("%,.2f",ramPercentage) + "% Faster Memory Operations", "Random-access memory (RAM) is a form of memory used to store working data and machine code. Having more RAM is particularly useful for multitasking, allowing you to run more programs at once or have more tabs open in your browser."));
         }
 
         if (smartphone1.getStorage() > smartphone2.getStorage()){
             Double storagePercentage = ((smartphone1.getStorage() - smartphone2.getStorage()) / (double) smartphone2.getStorage()) * 100;
-            overviews.add(new Overview(smartphone1.getStorage(), smartphone2.getStorage(), "GB", storagePercentage + "% Higher Capacity for Internal Storage", "The internal storage refers to the built-in storage space available in a device for system data, apps, and user-generated data. With a large amount of internal storage, you can save more files and apps on your device."));
+            overviews.add(new Overview(smartphone1.getStorage(), smartphone2.getStorage(), "GB", String.format("%,.2f", storagePercentage) + "% Higher Capacity for Internal Storage", "The internal storage refers to the built-in storage space available in a device for system data, apps, and user-generated data. With a large amount of internal storage, you can save more files and apps on your device."));
         }
 
         if (smartphone1.getGeekbenchResult() > smartphone2.getGeekbenchResult()){
             Double geekbenchPercentage = ((smartphone1.getGeekbenchResult() - smartphone2.getGeekbenchResult()) / (double) smartphone2.getGeekbenchResult()) * 100;
-            overviews.add(new Overview(smartphone1.getGeekbenchResult(), smartphone2.getGeekbenchResult(), "Points",  geekbenchPercentage+ "% Higher Geekbench Rating", "A Geekbench result is a score that measures the performance of a smartphone's processor and memory. Higher scores indicate better performance, helping users compare the capabilities of different devices."));
+            overviews.add(new Overview(smartphone1.getGeekbenchResult(), smartphone2.getGeekbenchResult(), "Points",  String.format("%,.2f", geekbenchPercentage)+ "% Higher Geekbench Rating", "A Geekbench result is a score that measures the performance of a smartphone's processor and memory. Higher scores indicate better performance, helping users compare the capabilities of different devices."));
         }
 
         if (smartphone1.getBatteryPower() > smartphone2.getBatteryPower()){
             Integer diffBatteryPower = smartphone1.getBatteryPower() - smartphone2.getBatteryPower();
             Double batteryPercentage = ((smartphone1.getBatteryPower() - smartphone2.getBatteryPower()) / (double) smartphone2.getBatteryPower()) * 100;
-            overviews.add(new Overview(smartphone1.getBatteryPower(), smartphone2.getBatteryPower(), "mAh", batteryPercentage + "% Longer Work Time - approx. " + diffBatteryPower / (0.75 * 1000) + " More Time", "Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life."));
+            overviews.add(new Overview(smartphone1.getBatteryPower(), smartphone2.getBatteryPower(), "mAh", batteryPercentage + "% Longer Work Time - approx. " + String.format("%,.2f", diffBatteryPower / (0.75 * 1000)) + " More Time", "Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life."));
         }
 
         if (smartphone1.getMegapix() > smartphone2.getMegapix()){
             Double megapixPercentage = ((smartphone1.getMegapix() - smartphone2.getMegapix()) / smartphone2.getMegapix()) * 100;
-            overviews.add(new Overview(smartphone1.getMegapix(), smartphone2.getMegapix(), "MP", megapixPercentage + "% More Megapixels", "The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image."));
+            overviews.add(new Overview(smartphone1.getMegapix(), smartphone2.getMegapix(), "MP", String.format("%,.2f", megapixPercentage) + "% More Megapixels", "The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image."));
         }
 
         return overviews;
@@ -868,65 +879,4 @@ public class SmartphoneService {
         chartDataDouble.getDataset2().setData(list2);
         return chartDataDouble;
     }
-
-
-    private static Map<String, List<Double>> collectValues(List<Smartphone> smartphones) {
-        Map<String, List<Double>> values = new HashMap<>();
-        // Collect values for all numeric fields specified in the DTO
-        values.put("storage", smartphones.stream().map(Smartphone::getStorage).map(Integer::doubleValue).collect(Collectors.toList()));
-        values.put("batteryPower", smartphones.stream().map(Smartphone::getBatteryPower).map(Integer::doubleValue).collect(Collectors.toList()));
-        values.put("screenSize", smartphones.stream().map(Smartphone::getScreenSize).collect(Collectors.toList()));
-        values.put("megapix", smartphones.stream().map(Smartphone::getMegapix).collect(Collectors.toList()));
-        values.put("avgPrice", smartphones.stream().map(Smartphone::getAvgPrice).collect(Collectors.toList()));
-
-        // Add any other numeric fields that require normalization and are available in the Smartphone entity
-        return values;
-    }
-
-    private static double calculateScore(Smartphone phone, Map<String, Double> weights, Map<String, List<Double>> allValues) {
-        double score = 0;
-        score += normalizedValue(phone.getStorage(), allValues.get("storage")) * weights.get("storage");
-        score += normalizedValue(phone.getBatteryPower(), allValues.get("batteryPower")) * weights.get("batteryPower");
-        score += normalizedValue(phone.getScreenSize(), allValues.get("screenSize")) * weights.get("screenSize");
-        score += normalizedValue(phone.getMegapix(), allValues.get("megapix")) * weights.get("megapix");
-        score += normalizedValue(phone.getAvgPrice(), allValues.get("avgPrice")) * weights.get("avgPrice");
-        return score * 100;
-    }
-
-    private static double normalizedValue(double value, List<Double> allValues) {
-        double minVal = Collections.min(allValues);
-        double maxVal = Collections.max(allValues);
-        if (maxVal == minVal) return 1; // All values are the same, return normalized value as 1
-        return ((value - minVal) / (maxVal - minVal));
-    }
-
-    public List<SmartphoneDTO> calculateAndSortScores(List<Smartphone> smartphones, Map<String, Double> weights) {
-        Map<String, List<Double>> allValues = collectValues(smartphones);
-        List<SmartphoneDTO> dtos = smartphones.stream()
-                .map(phone -> {
-                    double score = calculateScore(phone, weights, allValues);
-                    return new SmartphoneDTO(
-                            phone.getId(),
-                            phone.getName(),
-                            phone.getAvgPrice(),
-                            (int) Math.round(score),
-                            phone.getImageUrl(),
-                            phone.getStorage(),
-                            phone.getBatteryPower(),
-                            phone.getScreenSize(),
-                            phone.getMegapix()
-                    );
-                })
-                .sorted(Comparator.comparingDouble(SmartphoneDTO::getScore).reversed())
-                .collect(Collectors.toList());
-        return dtos;
-    }
-
-
-    public String buildPrompt(String userPrompt) {
-        String staticPrompt = "Please distribute a total importance score of 1.0 across various smartphone features according to their significance. Assign ratings between 0.1 and 1.0 to each feature, where 1.0 represents the highest importance. However, ensure that the sum of all assigned importance ratings does not exceed 1.0. Use the format 'Feature: Importance' for each feature and provide only the list with no introductory text. The features to evaluate are price, storage, battery power, screen size, and camera. Given my preference for a smartphone with substantial memory capacity, please allocate the weights accordingly, ensuring storage is prioritized. Features that are less critical to this specific need should be given a minimal importance of 0.1. ";
-        return staticPrompt + userPrompt;
-    }
-
-
 }
