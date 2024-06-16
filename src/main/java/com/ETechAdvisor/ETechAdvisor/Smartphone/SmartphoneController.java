@@ -29,6 +29,12 @@ public class SmartphoneController {
             @RequestParam(required = false) Double priceMax,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String displayType,
+            @RequestParam(required = false) Double processorSpeedMin,
+            @RequestParam(required = false) Double processorSpeedMax,
+            @RequestParam(required = false) Integer refreshRateMin,
+            @RequestParam(required = false) Integer refreshRateMax,
+            @RequestParam(required = false) Integer ramMin,
+            @RequestParam(required = false) Integer ramMax,
             @RequestParam(required = false) Integer storageMin,
             @RequestParam(required = false) Integer storageMax,
             @RequestParam(required = false) Boolean hasAudioJack,
@@ -40,9 +46,9 @@ public class SmartphoneController {
             @RequestParam(required = false) Double screenSizeMax,
             @RequestParam(required = false) String os
     ) {
-        return smartphoneService.getFilteredSmartphones(priceMin, priceMax, brand, displayType, storageMin,
-                storageMax, hasAudioJack, megapixMin, megapixMax, batteryPowerMin, batteryPowerMax,
-                screenSizeMin, screenSizeMax, os);
+        return smartphoneService.getFilteredSmartphones(priceMin, priceMax, processorSpeedMin, processorSpeedMax,
+                refreshRateMin, refreshRateMax, batteryPowerMin, batteryPowerMax, ramMin, ramMax, brand, displayType,
+                storageMin, storageMax, hasAudioJack, megapixMin, megapixMax, screenSizeMin, screenSizeMax, os);
     }
 
     @GetMapping("/{id}")

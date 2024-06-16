@@ -47,6 +47,14 @@ public class SmartphoneService {
 
     public List<SmartphoneDTO> getFilteredSmartphones(Double priceMin,
                                                       Double priceMax,
+                                                      Double processorSpeedMin,
+                                                      Double processorSpeedMax,
+                                                      Integer refreshRateMin,
+                                                      Integer refreshRateMax,
+                                                      Integer batteryPowerMin,
+                                                      Integer batteryPowerMax,
+                                                      Integer ramMin,
+                                                      Integer ramMax,
                                                       String brand,
                                                       String displayType,
                                                       Integer storageMin,
@@ -54,8 +62,6 @@ public class SmartphoneService {
                                                       Boolean hasAudioJack,
                                                       Integer megapixMin,
                                                       Integer megapixMax,
-                                                      Integer batteryPowerMin,
-                                                      Integer batteryPowerMax,
                                                       Double screenSizeMin,
                                                       Double screenSizeMax,
                                                       String os) {
@@ -68,6 +74,38 @@ public class SmartphoneService {
 
             if (priceMax != null) {
                 predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("avgPrice"), priceMax));
+            }
+
+            if (processorSpeedMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("processorSpeed"), processorSpeedMin));
+            }
+
+            if (processorSpeedMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("processorSpeed"), processorSpeedMax));
+            }
+
+            if (refreshRateMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("refreshRate"), refreshRateMin));
+            }
+
+            if (refreshRateMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("refreshRate"), refreshRateMax));
+            }
+
+            if (batteryPowerMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("batteryPower"), batteryPowerMin));
+            }
+
+            if (batteryPowerMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("batteryPower"), batteryPowerMax));
+            }
+
+            if (ramMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("ram"), ramMin));
+            }
+
+            if (ramMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("ram"), ramMax));
             }
 
             if (brand != null) {
@@ -124,10 +162,9 @@ public class SmartphoneService {
         List<Smartphone> filteredSmartphones = smartphoneRepository.findAll(smartphoneSpecification);
 
         for (Smartphone smartphone : filteredSmartphones) {
-            calculateScore(smartphone, priceMin, priceMax, batteryPowerMin,
-                    batteryPowerMax, brand, displayType, storageMin, storageMax,
-                    hasAudioJack, megapixMin, megapixMax, screenSizeMin, screenSizeMax,
-                    os);
+            calculateScore(smartphone, priceMin, priceMax, processorSpeedMin, processorSpeedMax, refreshRateMin,
+                    refreshRateMax, batteryPowerMin, batteryPowerMax, ramMin, ramMax, brand, displayType, storageMin,
+                    storageMax, hasAudioJack, megapixMin, megapixMax, screenSizeMin, screenSizeMax, os);
         }
 
         return filteredSmartphones.stream()
@@ -516,7 +553,7 @@ public class SmartphoneService {
                         .description("Devices with stereo speakers deliver sound from independent channels on both left and right sides, creating a richer sound and a better experience.")
                         .build()
         ));
-        calculateScore(smartphone,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+        calculateScore(smartphone, null, null, null, null, null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, null);
 
         return SmartphoneResponse.builder()
                 .id(id)
@@ -725,7 +762,7 @@ public class SmartphoneService {
                         .description("Devices with stereo speakers deliver sound from independent channels on both left and right sides, creating a richer sound and a better experience.")
                         .build()
         ));
-        calculateScore(smartphone,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+        calculateScore(smartphone, null, null, null, null, null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, null);
 
         return SmartphoneResponse.builder()
                 .id(smartphone.getId())
