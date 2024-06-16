@@ -1,10 +1,8 @@
 package com.ETechAdvisor.ETechAdvisor.Smartphone;
 
 
-import com.ETechAdvisor.ETechAdvisor.ChatGPT.ChatGptService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.Predicate;
-import org.hibernate.sql.ast.tree.expression.Over;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -39,11 +37,6 @@ public class SmartphoneService {
     private AtomicReference<Double> maxMegapix = new AtomicReference<>(0.0);
     private AtomicReference<Double> maxPrice = new AtomicReference<>(0.0);
     @Autowired
-    private ChatGptService chatGptService;
-
-
-    @Autowired
-
     public SmartphoneService(SmartphoneRepository smartphoneRepository) {
         this.smartphoneRepository = smartphoneRepository;
     }
@@ -68,7 +61,7 @@ public class SmartphoneService {
                                                       Double screenSizeMin,
                                                       Double screenSizeMax,
                                                       String os) {
-            Specification<Smartphone> smartphoneSpecification = (root, query, criteriaBuilder) -> {
+        Specification<Smartphone> smartphoneSpecification = (root, query, criteriaBuilder) -> {
             List<Predicate> predicateList = new ArrayList<>();
 
             if (priceMin != null) {
@@ -163,7 +156,7 @@ public class SmartphoneService {
         };
 
         List<Smartphone> filteredSmartphones = smartphoneRepository.findAll(smartphoneSpecification);
-
+        calculateMaxValues(filteredSmartphones);
         for (Smartphone smartphone : filteredSmartphones) {
             calculateScore(smartphone, priceMin, priceMax, processorSpeedMin, processorSpeedMax, refreshRateMin,
                     refreshRateMax, batteryPowerMin, batteryPowerMax, ramMin, ramMax, brand, displayType, storageMin,
@@ -210,57 +203,76 @@ public class SmartphoneService {
                                 Double screenSizeMax,
                                 String os){
         double score = 0;
-        int total_weight = 0;
+        double total_weight = 0;
+        if (priceMin == null || priceMax == null) {
+            score += Math.max(0, Math.min(getPriceScore(smartphone, priceMin, priceMax), 1)) ;
+            total_weight += 0.5;
+        }
+        else if(!priceMin.equals(priceMax)){
+            score += Math.max(0, Math.min(getPriceScore(smartphone, priceMin, priceMax), 1));
+            total_weight += 1;
+        }
+        if (ramMin == null || ramMax == null) {
+            score += Math.max(0, Math.min(getRAMScore(smartphone, ramMin, ramMax), 1)) ;
+            total_weight += 0.5;
+        }
+        else if(!ramMin.equals(ramMax)){
+            score += Math.max(0, Math.min(getRAMScore(smartphone, ramMin, ramMax), 1));
+            total_weight += 1;
+        }
+        if (processorSpeedMin == null || processorSpeedMax == null) {
+            score += Math.max(0, Math.min(getProcessorScore(smartphone, processorSpeedMin, processorSpeedMax), 1));
+            total_weight += 0.5;
+        }
+        else if(!processorSpeedMin.equals(processorSpeedMax)){
+            score += Math.max(0, Math.min(getProcessorScore(smartphone, processorSpeedMin, processorSpeedMax), 1));
+            total_weight += 1;
+        }
 
-        double price_score;
-        if (priceMin != null && priceMax != null) {
-            price_score = 1 - ((smartphone.getAvgPrice() - priceMin) / (priceMax - priceMin));
+        if (refreshRateMin == null || refreshRateMax == null) {
+            score += Math.max(0, Math.min(getRefreshScore(smartphone, refreshRateMin, refreshRateMax), 1)) ;
+            total_weight += 0.5;
         }
-        else {
-            price_score = smartphone.getAvgPrice() / maxPrice.get();
+        else if (!refreshRateMin.equals(refreshRateMax)){
+            score += Math.max(0, Math.min(getRefreshScore(smartphone, refreshRateMin, refreshRateMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(price_score, 1));
-        total_weight += 1;
 
-        double storage_score;
-        if (storageMin != null && storageMax != null) {
-            storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
+        if (storageMin == null || storageMax == null) {
+            score += Math.max(0, Math.min(getStorageScore(smartphone, storageMin, storageMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            storage_score = (double) smartphone.getStorage() / maxStorage.get();
+        else if(!storageMin.equals(storageMax)){
+            score += Math.max(0, Math.min(getStorageScore(smartphone, storageMin, storageMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(storage_score, 1));
-        total_weight += 1;
 
-        double battery_score;
-        if (batteryPowerMin != null && batteryPowerMax != null) {
-            battery_score = (double) (smartphone.getBatteryPower() - batteryPowerMin) / (batteryPowerMax - batteryPowerMin);
+        if (batteryPowerMin == null || batteryPowerMax == null) {
+            score += Math.max(0, Math.min(getBatteryScore(smartphone, batteryPowerMin, batteryPowerMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            battery_score = (double) smartphone.getBatteryPower() / maxBatteryPower.get();
+        else if(!batteryPowerMin.equals(batteryPowerMax)){
+            score += Math.max(0, Math.min(getBatteryScore(smartphone, batteryPowerMin, batteryPowerMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(battery_score, 1));
-        total_weight += 1;
 
-        double screen_size_score;
-        if (screenSizeMin != null && screenSizeMax != null) {
-            screen_size_score = (smartphone.getScreenSize() - screenSizeMin) / (screenSizeMax - screenSizeMin);
+        if (screenSizeMin == null || screenSizeMax == null) {
+            score += Math.max(0, Math.min(getScreenSizeScore(smartphone, screenSizeMin, screenSizeMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            screen_size_score = smartphone.getScreenSize() / maxScreenSize.get();
+        else if(!screenSizeMin.equals(screenSizeMax)){
+            score += Math.max(0, Math.min(getScreenSizeScore(smartphone, screenSizeMin, screenSizeMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(screen_size_score, 1));
-        total_weight += 1;
 
-        double megapix_score;
-        if (megapixMin != null && megapixMax != null) {
-            megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
+        if (megapixMin == null || megapixMax == null) {
+            score += Math.max(0, Math.min(getMegapixScore(smartphone, megapixMin, megapixMax), 1)) ;
+            total_weight += 1;
         }
-        else {
-            megapix_score = smartphone.getMegapix() / maxScreenSize.get();
+        else if(!megapixMin.equals(megapixMax)){
+            score += Math.max(0, Math.min(getMegapixScore(smartphone, megapixMin, megapixMax), 1));
+            total_weight += 1;
         }
-        score += Math.max(0, Math.min(megapix_score, 1));
-        total_weight += 1;
 
         if (os != null) {
             if (smartphone.getOs().equalsIgnoreCase(os)) {
@@ -385,7 +397,6 @@ public class SmartphoneService {
     @PostConstruct
     public void init() {
         calculateAverages();
-        calculateMaxValues();
     }
 
     public void calculateAverages() {
@@ -431,8 +442,8 @@ public class SmartphoneService {
                 .sum();
         averageMegapix.set(totalMegapix / size);
     }
-    public void calculateMaxValues() {
-        List<Smartphone> smartphones = smartphoneRepository.findAll();
+
+    public void calculateMaxValues(List<Smartphone> smartphones) {
 
         double maxScreenSizeValue = smartphones.stream()
                 .mapToDouble(Smartphone::getScreenSize)
@@ -868,65 +879,4 @@ public class SmartphoneService {
         chartDataDouble.getDataset2().setData(list2);
         return chartDataDouble;
     }
-
-
-    private static Map<String, List<Double>> collectValues(List<Smartphone> smartphones) {
-        Map<String, List<Double>> values = new HashMap<>();
-        // Collect values for all numeric fields specified in the DTO
-        values.put("storage", smartphones.stream().map(Smartphone::getStorage).map(Integer::doubleValue).collect(Collectors.toList()));
-        values.put("batteryPower", smartphones.stream().map(Smartphone::getBatteryPower).map(Integer::doubleValue).collect(Collectors.toList()));
-        values.put("screenSize", smartphones.stream().map(Smartphone::getScreenSize).collect(Collectors.toList()));
-        values.put("megapix", smartphones.stream().map(Smartphone::getMegapix).collect(Collectors.toList()));
-        values.put("avgPrice", smartphones.stream().map(Smartphone::getAvgPrice).collect(Collectors.toList()));
-
-        // Add any other numeric fields that require normalization and are available in the Smartphone entity
-        return values;
-    }
-
-    private static double calculateScore(Smartphone phone, Map<String, Double> weights, Map<String, List<Double>> allValues) {
-        double score = 0;
-        score += normalizedValue(phone.getStorage(), allValues.get("storage")) * weights.get("storage");
-        score += normalizedValue(phone.getBatteryPower(), allValues.get("batteryPower")) * weights.get("batteryPower");
-        score += normalizedValue(phone.getScreenSize(), allValues.get("screenSize")) * weights.get("screenSize");
-        score += normalizedValue(phone.getMegapix(), allValues.get("megapix")) * weights.get("megapix");
-        score += normalizedValue(phone.getAvgPrice(), allValues.get("avgPrice")) * weights.get("avgPrice");
-        return score * 100;
-    }
-
-    private static double normalizedValue(double value, List<Double> allValues) {
-        double minVal = Collections.min(allValues);
-        double maxVal = Collections.max(allValues);
-        if (maxVal == minVal) return 1; // All values are the same, return normalized value as 1
-        return ((value - minVal) / (maxVal - minVal));
-    }
-
-    public List<SmartphoneDTO> calculateAndSortScores(List<Smartphone> smartphones, Map<String, Double> weights) {
-        Map<String, List<Double>> allValues = collectValues(smartphones);
-        List<SmartphoneDTO> dtos = smartphones.stream()
-                .map(phone -> {
-                    double score = calculateScore(phone, weights, allValues);
-                    return new SmartphoneDTO(
-                            phone.getId(),
-                            phone.getName(),
-                            phone.getAvgPrice(),
-                            (int) Math.round(score),
-                            phone.getImageUrl(),
-                            phone.getStorage(),
-                            phone.getBatteryPower(),
-                            phone.getScreenSize(),
-                            phone.getMegapix()
-                    );
-                })
-                .sorted(Comparator.comparingDouble(SmartphoneDTO::getScore).reversed())
-                .collect(Collectors.toList());
-        return dtos;
-    }
-
-
-    public String buildPrompt(String userPrompt) {
-        String staticPrompt = "Please distribute a total importance score of 1.0 across various smartphone features according to their significance. Assign ratings between 0.1 and 1.0 to each feature, where 1.0 represents the highest importance. However, ensure that the sum of all assigned importance ratings does not exceed 1.0. Use the format 'Feature: Importance' for each feature and provide only the list with no introductory text. The features to evaluate are price, storage, battery power, screen size, and camera. Given my preference for a smartphone with substantial memory capacity, please allocate the weights accordingly, ensuring storage is prioritized. Features that are less critical to this specific need should be given a minimal importance of 0.1. ";
-        return staticPrompt + userPrompt;
-    }
-
-
 }
