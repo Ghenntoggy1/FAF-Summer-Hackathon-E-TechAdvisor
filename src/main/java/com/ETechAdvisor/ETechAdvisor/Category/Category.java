@@ -27,3 +27,4 @@ public class Category {
 
 
 }
+//nu zic ce am sters
