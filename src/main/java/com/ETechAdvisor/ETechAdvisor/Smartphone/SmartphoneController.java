@@ -51,9 +51,8 @@ public class SmartphoneController {
 
     @GetMapping("/{id}/vs/{other}")
     public CompareResponse compareSmartphones(@PathVariable Integer id,
-                                              @PathVariable Integer other){
+                                              @PathVariable Integer other) throws IOException {
 
         return smartphoneService.compareSmartphones(id, other);
-
     }
 }

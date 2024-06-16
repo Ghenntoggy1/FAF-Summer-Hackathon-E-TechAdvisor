@@ -510,7 +510,7 @@ public class SmartphoneService {
 
         return overviews;
     }
-    private List<Overview> getOverview2(Smartphone smartphone1, Smartphone smartphone2){
+    private List<Overview> getOverview(Smartphone smartphone1, Smartphone smartphone2){
         List<Overview> overviews = new ArrayList<>();
         if(smartphone1.getScreenSize() > smartphone2.getScreenSize()){
             Double screenSizePercentage = ((smartphone1.getScreenSize() - smartphone2.getScreenSize()) / smartphone2.getScreenSize()) * 100;
@@ -555,9 +555,120 @@ public class SmartphoneService {
 
         return overviews;
     }
-    public CompareResponse compareSmartphones(Integer id, Integer other) {
+
+    private SmartphoneResponse createSmartphone(Smartphone smartphone, Smartphone smartphone2) throws IOException {
+        if(smartphone == null) {
+            return null;
+        }
+        List<Overview> overviews = getOverview(smartphone,smartphone2);
+        List<Price> prices = getPrices(smartphone.getName());
+
+        List<Spec> display = new ArrayList<>(Arrays.asList(
+                Spec.builder()
+                        .name("Screen size")
+                        .value(String.valueOf(smartphone.getScreenSize()))
+                        .description("The size of the screen (measured diagonally).")
+                        .build(),
+                Spec.builder()
+                        .name("Display Type")
+                        .value(smartphone.getDisplayType())
+                        .description("The type of technology used in the display.")
+                        .build(),
+                Spec.builder()
+                        .name("Refresh Rate")
+                        .value(String.valueOf(smartphone.getRefreshRate()))
+                        .description("Refresh rate for a display refers to the number of times per second the screen updates its image, measured in Hertz (Hz). A higher refresh rate results in smoother motion on the screen, which is especially important for fast-paced activities like gaming and watching videos.")
+                        .build(),
+                Spec.builder()
+                        .name("Resolution")
+                        .value(smartphone.getResolution())
+                        .description("The frequency at which the display is refreshed (1 Hz = once per second). A higher refresh rate results in smoother UI animations and video playback.")
+                        .build()
+        ));
+        List<Spec> performance = new ArrayList<>(Arrays.asList(
+                Spec.builder()
+                        .name("RAM")
+                        .value(String.valueOf(smartphone.getRam()))
+                        .description("Random-access memory (RAM) is a form of memory used to store working data and machine code. Having more RAM is particularly useful for multitasking, allowing you to run more programs at once or have more tabs open in your browser.")
+                        .build(),
+                Spec.builder()
+                        .name("Processor Model")
+                        .value(smartphone.getProcessorModel())
+                        .description("A processor model is like the brain of a computer or phone, deciding how fast it can think and work on tasks. Different models have varying abilities, like speed and efficiency, which affect how well devices can handle tasks and run programs.")
+                        .build(),
+                Spec.builder()
+                        .name("Processor Speed")
+                        .value(String.valueOf(smartphone.getProcessorSpeed()))
+                        .description("The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores.")
+                        .build(),
+                Spec.builder()
+                        .name("Internal Storage")
+                        .value(String.valueOf(smartphone.getStorage()))
+                        .description("The CPU speed indicates how many processing cycles per second can be executed by a CPU, considering all of its cores (processing units). It is calculated by adding the clock rates of each core or, in the case of multi-core processors employing different microarchitectures, of each group of cores.")
+                        .build(),
+                Spec.builder()
+                        .name("Geekbench 6 Results")
+                        .value(String.valueOf(smartphone.getGeekbenchResult()))
+                        .description("A Geekbench result is a score that measures the performance of a smartphone's processor and memory. Higher scores indicate better performance, helping users compare the capabilities of different devices.")
+                        .build(),
+                Spec.builder()
+                        .name("Battery Power")
+                        .value(String.valueOf(smartphone.getBatteryPower()))
+                        .description("Battery power, or battery capacity, represents the amount of electrical energy that a battery can store. More battery power can be an indication of longer battery life.")
+                        .build()
+        ));
+        List<Spec> photoAudio = new ArrayList<>(Arrays.asList(
+                Spec.builder()
+                        .name("Camera Megapixels")
+                        .value(String.valueOf(smartphone.getMegapix()))
+                        .description("The number of megapixels determines the resolution of the images captured with the main camera. A higher megapixel count means that the camera is capable of capturing more details. However, the megapixel count is not the only important element determining the quality of an image.")
+                        .build(),
+                Spec.builder()
+                        .name("Audio Jack")
+                        .value(String.valueOf(smartphone.getHasAudiojack()))
+                        .description("With a standard mini jack socket, you can use the device with most headphones.")
+                        .build(),
+                Spec.builder()
+                        .name("Stereo Speakers")
+                        .value(smartphone.getStereoSpeakers())
+                        .description("Devices with stereo speakers deliver sound from independent channels on both left and right sides, creating a richer sound and a better experience.")
+                        .build()
+        ));
+        calculateScore(smartphone,null,null,null,null,null,null,null,null,null,null,null,null,null,null);
+
+        return SmartphoneResponse.builder()
+                .id(smartphone.getId())
+                .name(smartphone.getName())
+                .avgPrice(smartphone.getAvgPrice())
+                .score(smartphone.getScore())
+                .imageUrl(smartphone.getImageUrl())
+                .overview(overviews)
+                .storage(smartphone.getStorage())
+                .batteryPower(smartphone.getBatteryPower())
+                .screenSize(smartphone.getScreenSize())
+                .megapix(smartphone.getMegapix())
+                .priceTags(prices)
+                .display(display)
+                .performance(performance)
+                .photoAudio(photoAudio)
+                .build();
+    }
+    public CompareResponse compareSmartphones(Integer id, Integer other) throws IOException {
         Smartphone smartphone1 = smartphoneRepository.findById(id).orElse(null);
         Smartphone smartphone2 = smartphoneRepository.findById(other).orElse(null);
-        return null;
+        int winnner;
+        SmartphoneResponse smartphoneResponse1 = createSmartphone(smartphone1,smartphone2);
+        SmartphoneResponse smartphoneResponse2 = createSmartphone(smartphone2,smartphone1);
+        if(smartphoneResponse1.getAvgPrice() > smartphoneResponse2.getAvgPrice()){
+            winnner = smartphoneResponse1.getId();
+        }
+        else{
+            winnner = smartphoneResponse2.getId();
+        }
+        return  CompareResponse.builder()
+                .winner(winnner)
+                .smartphoneOne(smartphoneResponse1)
+                .smartphoneTwo(smartphoneResponse2)
+                .build();
     }
 }
