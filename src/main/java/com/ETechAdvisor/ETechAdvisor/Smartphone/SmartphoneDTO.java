@@ -17,4 +17,5 @@ public class SmartphoneDTO {
     private Integer batteryPower;
     private Double screenSize;
     private Double megapix;
+//    Privet Dima, kak dela?
 }

@@ -73,6 +73,38 @@ public class SmartphoneService {
                 predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("avgPrice"), priceMax));
             }
 
+            if (processorSpeedMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("processorSpeed"), processorSpeedMin));
+            }
+
+            if (processorSpeedMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("processorSpeed"), processorSpeedMax));
+            }
+
+            if (refreshRateMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("refreshRate"), refreshRateMin));
+            }
+
+            if (refreshRateMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("refreshRate"), refreshRateMax));
+            }
+
+            if (batteryPowerMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("batteryPower"), batteryPowerMin));
+            }
+
+            if (batteryPowerMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("batteryPower"), batteryPowerMax));
+            }
+
+            if (ramMin != null) {
+                predicateList.add(criteriaBuilder.greaterThanOrEqualTo(root.get("ram"), ramMin));
+            }
+
+            if (ramMax != null) {
+                predicateList.add(criteriaBuilder.lessThanOrEqualTo(root.get("ram"), ramMax));
+            }
+
             if (brand != null) {
                 predicateList.add(criteriaBuilder.equal(root.get("brand").get("brand_name"), brand));
             }
@@ -154,8 +186,14 @@ public class SmartphoneService {
     private void calculateScore(Smartphone smartphone,
                                 Double priceMin,
                                 Double priceMax,
+                                Double processorSpeedMin,
+                                Double processorSpeedMax,
+                                Integer refreshRateMin,
+                                Integer refreshRateMax,
                                 Integer batteryPowerMin,
                                 Integer batteryPowerMax,
+                                Integer ramMin,
+                                Integer ramMax,
                                 String brand,
                                 String displayType,
                                 Integer storageMin,
@@ -249,6 +287,94 @@ public class SmartphoneService {
 
         int final_score = (int) ((score / total_weight) * 100);
         smartphone.setScore(final_score);
+    }
+
+    private int getRAMScore(Smartphone smartphone, Integer ramMin, Integer ramMax) {
+        int ram_score;
+        if (ramMin != null && ramMax != null) {
+            ram_score = (smartphone.getRam() - ramMin) / (ramMax - ramMin);
+        }
+        else {
+            ram_score = smartphone.getRam() / maxRam.get();
+        }
+        return ram_score;
+    }
+
+    private int getRefreshScore(Smartphone smartphone, Integer refreshRateMin, Integer refreshRateMax) {
+        int refresh_rate_score;
+        if (refreshRateMin != null && refreshRateMax != null) {
+            refresh_rate_score = (smartphone.getRefreshRate() - refreshRateMin) / (refreshRateMax - refreshRateMin);
+        }
+        else {
+            refresh_rate_score = smartphone.getRefreshRate() / maxRefreshRate.get();
+        }
+        return refresh_rate_score;
+    }
+
+    private double getProcessorScore(Smartphone smartphone, Double processorSpeedMin, Double processorSpeedMax) {
+        double processor_score;
+        if (processorSpeedMin != null && processorSpeedMax != null) {
+            processor_score = (smartphone.getProcessorSpeed() - processorSpeedMin) / (processorSpeedMax - processorSpeedMin);
+        }
+        else {
+            processor_score = smartphone.getProcessorSpeed() / maxProcessorSpeed.get();
+        }
+        return processor_score;
+    }
+
+    private double getMegapixScore(Smartphone smartphone, Integer megapixMin, Integer megapixMax) {
+        double megapix_score;
+        if (megapixMin != null && megapixMax != null) {
+            megapix_score = (smartphone.getMegapix() - megapixMin) / (megapixMax - megapixMin);
+        }
+        else {
+            megapix_score = smartphone.getMegapix() / maxMegapix.get();
+        }
+        return megapix_score;
+    }
+
+    private double getScreenSizeScore(Smartphone smartphone, Double screenSizeMin, Double screenSizeMax) {
+        double screen_size_score;
+        if (screenSizeMin != null && screenSizeMax != null) {
+            screen_size_score = (smartphone.getScreenSize() - screenSizeMin) / (screenSizeMax - screenSizeMin);
+        }
+        else {
+            screen_size_score = smartphone.getScreenSize() / maxScreenSize.get();
+        }
+        return screen_size_score;
+    }
+
+    private double getBatteryScore(Smartphone smartphone, Integer batteryPowerMin, Integer batteryPowerMax) {
+        double battery_score;
+        if (batteryPowerMin != null && batteryPowerMax != null) {
+            battery_score = (double) (smartphone.getBatteryPower() - batteryPowerMin) / (batteryPowerMax - batteryPowerMin);
+        }
+        else {
+            battery_score = (double) smartphone.getBatteryPower() / maxBatteryPower.get();
+        }
+        return battery_score;
+    }
+
+    private double getStorageScore(Smartphone smartphone, Integer storageMin, Integer storageMax) {
+        double storage_score;
+        if (storageMin != null && storageMax != null) {
+            storage_score = (double) (smartphone.getStorage() - storageMin) / (storageMax - storageMin);
+        }
+        else {
+            storage_score = (double) smartphone.getStorage() / maxStorage.get();
+        }
+        return storage_score;
+    }
+
+    private double getPriceScore(Smartphone smartphone, Double priceMin, Double priceMax) {
+        double price_score;
+        if (priceMin != null && priceMax != null) {
+            price_score = 1 - ((smartphone.getAvgPrice() - priceMin) / (priceMax - priceMin));
+        }
+        else {
+            price_score = smartphone.getAvgPrice() / maxPrice.get();
+        }
+        return price_score;
     }
 
     @PostConstruct
@@ -696,6 +822,46 @@ public class SmartphoneService {
                 .smartphoneOne(smartphoneResponse1)
                 .smartphoneTwo(smartphoneResponse2)
                 .build();
+    }
+
+    public ChartDataSingle getSingleChartData(Integer id) {
+        ChartDataSingle chartData = new ChartDataSingle();
+        Smartphone smartphone = smartphoneRepository.findById(id).orElse(null);
+        Random random = new Random();
+        int designScore = random.nextInt(60,100);
+        int performance = (int)(getProcessorScore(smartphone,null,null)*100 + getRAMScore(smartphone,null,null) *100)/ 2;
+        int display = (int)(getRefreshScore(smartphone,null,null) *100+ getScreenSizeScore(smartphone,null,null)*100)/2;
+        int battery = (int)(getBatteryScore(smartphone,null,null)*100);
+        int camera = (int)(getMegapixScore(smartphone,null,null)*100);
+        int storage = (int)(getStorageScore(smartphone,null,null)*100);
+        List<Integer> list = new ArrayList<>(Arrays.asList(designScore, performance,display,battery,camera,storage));
+        chartData.getDataset().setData(list);
+        return chartData;
+    }
+
+    public ChartDataDouble getDoubleChartData(Integer id, Integer other) {
+        ChartDataDouble chartDataDouble = new ChartDataDouble();
+        Smartphone smartphone1 = smartphoneRepository.findById(id).orElse(null);
+        Smartphone smartphone2 = smartphoneRepository.findById(other).orElse(null);
+        Random random1 = new Random();
+        Random random2 = new Random();
+        int designScore1 = random1.nextInt(60,100);
+        int designScore2 = random2.nextInt(60,100);
+        int performance1 = (int)(getProcessorScore(smartphone1,null,null)*100 + getRAMScore(smartphone1,null,null) *100)/ 2;
+        int performance2 = (int)(getProcessorScore(smartphone2,null,null)*100 + getRAMScore(smartphone2,null,null) *100)/ 2;
+        int display1 = (int)(getRefreshScore(smartphone1,null,null) *100+ getScreenSizeScore(smartphone1,null,null)*100)/2;
+        int display2 = (int)(getRefreshScore(smartphone2,null,null) *100+ getScreenSizeScore(smartphone2,null,null)*100)/2;
+        int battery1 = (int)(getBatteryScore(smartphone1,null,null)*100);
+        int battery2 = (int)(getBatteryScore(smartphone2,null,null)*100);
+        int camera1 = (int)(getMegapixScore(smartphone1,null,null)*100);
+        int camera2 = (int)(getMegapixScore(smartphone2,null,null)*100);
+        int storage1 = (int)(getStorageScore(smartphone1,null,null)*100);
+        int storage2 = (int)(getStorageScore(smartphone2,null,null)*100);
+        List<Integer> list1 = new ArrayList<>(Arrays.asList(designScore1, performance1,display1,battery1,camera1,storage1));
+        List<Integer> list2 = new ArrayList<>(Arrays.asList(designScore2, performance2,display2,battery2,camera2,storage2));
+        chartDataDouble.getDataset1().setData(list1);
+        chartDataDouble.getDataset2().setData(list2);
+        return chartDataDouble;
     }
 
 

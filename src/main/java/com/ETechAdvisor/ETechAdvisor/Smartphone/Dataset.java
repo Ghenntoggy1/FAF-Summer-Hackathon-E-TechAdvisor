@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
-public class Spec {
-    private String name;
-    private String value;
-    private String description;
+@Builder
+@Data
+public class Dataset {
+    List<Integer> data = new ArrayList<>();
 }
-//Ihaaaa, mam zaebit
